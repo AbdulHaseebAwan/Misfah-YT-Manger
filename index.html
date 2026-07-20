@@ -1,0 +1,2984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>YT Team Manager</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#09090f;--bg2:#111118;--bg3:#18181f;--bg4:#22222c;--bg5:#2a2a36;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.1);--border3:rgba(255,255,255,0.16);
+  --text:#f0f0f8;--text2:#9090a8;--text3:#55556a;
+  --accent:#e8ff47;--accent-dim:rgba(232,255,71,0.1);
+  --green:#22c55e;--red:#ef4444;--amber:#f59e0b;--blue:#60a5fa;--purple:#a78bfa;--pink:#f472b6;--teal:#2dd4bf;
+  --r:10px;--r-sm:7px;--r-lg:16px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+/* LOGIN */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:1.5rem}
+.login-wrap{width:100%;max-width:400px}
+.login-brand{display:flex;align-items:center;gap:.75rem;margin-bottom:2rem}
+.login-brand-icon{width:40px;height:40px;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.1rem}
+.login-brand-name{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700}
+.login-brand-sub{font-size:.7rem;color:var(--text3);letter-spacing:.06em;text-transform:uppercase}
+.login-card{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-lg);padding:2rem}
+.login-title{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:700;margin-bottom:.4rem}
+.login-sub{font-size:.85rem;color:var(--text2);margin-bottom:1.75rem;line-height:1.5}
+.login-err{background:rgba(239,68,68,.12);border:1px solid rgba(239,68,68,.3);color:#fca5a5;border-radius:var(--r-sm);padding:.65rem .9rem;font-size:.8rem;margin-bottom:1rem;display:none}
+.btn-login{width:100%;background:var(--accent);color:#000;border:none;border-radius:var(--r-sm);padding:.85rem;font-size:.9rem;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:all .2s}
+.btn-login:hover{opacity:.88}
+/* FIELDS */
+.field-label{font-size:.72rem;font-weight:600;color:var(--text2);margin-bottom:.35rem;display:block;letter-spacing:.04em;text-transform:uppercase}
+.field-input,.field-select{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:.7rem .9rem;color:var(--text);font-size:.875rem;font-family:'DM Sans',sans-serif;outline:none;transition:all .2s;margin-bottom:.9rem}
+.field-input:focus,.field-select:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(232,255,71,.1)}
+.field-select option{background:var(--bg3)}
+.field-pass-wrap{position:relative;margin-bottom:.9rem}
+.field-pass-wrap .field-input{margin-bottom:0;padding-right:3rem}
+.pass-toggle{position:absolute;right:.75rem;top:50%;transform:translateY(-50%);background:none;border:none;color:var(--text3);cursor:pointer;font-size:.85rem;padding:.2rem}
+/* APP */
+#app{display:none}
+.layout{display:flex;min-height:100vh}
+/* SIDEBAR */
+.sidebar{width:220px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.sb-top{padding:1.25rem 1rem 1rem;border-bottom:1px solid var(--border)}
+.sb-logo{display:flex;align-items:center;gap:.6rem}
+.sb-logo-icon{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:.75rem;flex-shrink:0}
+.sb-logo-text{font-family:'Syne',sans-serif;font-size:.9rem;font-weight:700}
+.sb-nav{flex:1;padding:.75rem .6rem;overflow-y:auto}
+.sb-section{font-size:.63rem;font-weight:600;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;padding:.75rem .6rem .3rem}
+.sb-item{display:flex;align-items:center;gap:.6rem;padding:.58rem .75rem;border-radius:var(--r-sm);cursor:pointer;font-size:.82rem;color:var(--text2);transition:all .15s;margin-bottom:1px}
+.sb-item:hover{background:var(--bg3);color:var(--text)}
+.sb-item.active{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(232,255,71,.15)}
+.sb-icon{width:16px;text-align:center;font-size:.9rem;flex-shrink:0}
+.sb-footer{padding:.75rem .6rem;border-top:1px solid var(--border)}
+.sb-user{display:flex;align-items:center;gap:.6rem;padding:.6rem .75rem;background:var(--bg3);border-radius:var(--r-sm)}
+.sb-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;flex-shrink:0;font-family:'Syne',sans-serif}
+.sb-uname{font-size:.8rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb-urole{font-size:.65rem;color:var(--text3)}
+.sb-logout{background:none;border:none;color:var(--text3);cursor:pointer;font-size:.75rem;padding:2px 4px;border-radius:4px;transition:color .15s;margin-left:auto}
+.sb-logout:hover{color:var(--red)}
+/* MAIN */
+.main{flex:1;margin-left:220px;padding:2rem;min-height:100vh}
+.page{display:none;animation:fadeUp .3s ease}
+.page.active{display:block}
+.pg-hd{margin-bottom:2rem}
+.pg-title{font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;margin-bottom:.25rem}
+.pg-sub{font-size:.85rem;color:var(--text2)}
+/* CARDS */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.5rem}
+.card-sm{padding:1rem}
+.ct{font-size:.68rem;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:1.1rem}
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem}
+.gap{margin-bottom:1.5rem}
+/* STATS */
+.stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem 1.4rem;position:relative;overflow:hidden}
+.stat::before{content:'';position:absolute;top:0;left:0;right:0;height:2px}
+.s-green::before{background:var(--green)}.s-amber::before{background:var(--amber)}.s-blue::before{background:var(--blue)}.s-red::before{background:var(--red)}.s-purple::before{background:var(--purple)}.s-accent::before{background:var(--accent)}
+.s-label{font-size:.7rem;color:var(--text2);margin-bottom:.4rem;letter-spacing:.04em}
+.s-val{font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:800;line-height:1}
+.s-meta{font-size:.7rem;color:var(--text3);margin-top:.25rem}
+/* MINI STAT (for calendar summary) */
+.mstat{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:.85rem 1rem;text-align:center}
+.mstat-val{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;line-height:1.1}
+.mstat-label{font-size:.62rem;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-top:.25rem}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem 1rem;border-radius:var(--r-sm);font-size:.82rem;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s}
+.b-accent{background:var(--accent);color:#000;font-weight:700}.b-accent:hover{opacity:.85}
+.b-ghost{background:var(--bg3);color:var(--text2);border:1px solid var(--border2)}.b-ghost:hover{color:var(--text);border-color:var(--border3)}
+.b-danger{background:rgba(239,68,68,.1);color:var(--red);border:1px solid rgba(239,68,68,.2)}.b-danger:hover{background:rgba(239,68,68,.2)}
+.b-sm{padding:.28rem .6rem;font-size:.74rem}
+.b-green{background:rgba(34,197,94,.15);color:var(--green);border:1px solid rgba(34,197,94,.25)}.b-green:hover{background:rgba(34,197,94,.25)}
+/* BADGE */
+.badge{display:inline-flex;align-items:center;padding:.18rem .55rem;border-radius:999px;font-size:.67rem;font-weight:500}
+.bgg{background:rgba(34,197,94,.12);color:var(--green)}
+.bga{background:rgba(245,158,11,.12);color:var(--amber)}
+.bgr{background:rgba(239,68,68,.12);color:var(--red)}
+.bgb{background:rgba(96,165,250,.12);color:var(--blue)}
+.bgp{background:rgba(167,139,250,.12);color:var(--purple)}
+.bgy{background:rgba(144,144,168,.1);color:var(--text2)}
+.bgac{background:rgba(232,255,71,.1);color:var(--accent)}
+.bgt{background:rgba(45,212,191,.12);color:var(--teal)}
+/* TABLE */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th{text-align:left;padding:.6rem 1rem;font-size:.66rem;font-weight:600;color:var(--text3);letter-spacing:.07em;text-transform:uppercase;border-bottom:1px solid var(--border)}
+td{padding:.78rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:var(--bg3)}
+/* PROGRESS */
+.pw{background:var(--bg4);border-radius:999px;height:5px;overflow:hidden}
+.pb{height:100%;border-radius:999px;transition:width .5s ease}
+.pg{background:var(--green)}.pa{background:var(--amber)}.pr{background:var(--red)}.pac{background:var(--accent)}.pp{background:var(--purple)}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:500;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.modal-bg.open{display:flex}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-lg);padding:2rem;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;animation:fadeUp .25s ease}
+.mhd{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.5rem}
+.mtitle{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700}
+.mx{background:none;border:none;color:var(--text3);font-size:1.2rem;cursor:pointer;width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:4px}
+.mx:hover{background:var(--bg3);color:var(--text)}
+.mft{display:flex;gap:.75rem;justify-content:flex-end;margin-top:1.5rem}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+/* FLEX */
+.fb{display:flex;align-items:center;justify-content:space-between}
+.fg{display:flex;align-items:center;gap:.6rem}
+/* TODAY */
+.wl-form{background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r);padding:1.5rem;margin-bottom:1.5rem}
+.wl-title{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700;margin-bottom:1rem}
+.time-inputs{display:flex;align-items:center;gap:.35rem}
+.time-inp{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r-sm);padding:.6rem .75rem;color:var(--text);font-size:.875rem;font-family:'DM Mono',monospace;width:60px;outline:none;text-align:center}
+.time-inp:focus{border-color:var(--accent)}
+.time-sep{font-size:.75rem;color:var(--text3)}
+.clock-card{text-align:center;padding:1.75rem}
+.clock-time{font-family:'DM Mono',monospace;font-size:2.5rem;font-weight:400;color:var(--accent);margin:.75rem 0 .25rem}
+.clock-date-str{font-size:.78rem;color:var(--text3);margin-bottom:1.5rem}
+.clock-btn{padding:.7rem 2rem;border-radius:999px;border:none;font-family:'Syne',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;transition:all .2s;width:100%;max-width:200px}
+.cb-in{background:var(--green);color:#fff}.cb-out{background:var(--red);color:#fff}.cb-done{background:var(--bg4);color:var(--text2)}
+.clock-info{font-size:.75rem;color:var(--text3);margin-top:.75rem}
+/* LOGS */
+.log-entry{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r-sm);padding:1rem;margin-bottom:.5rem}
+.log-task{font-weight:500;font-size:.875rem}
+.log-meta{display:flex;gap:.35rem;flex-wrap:wrap;align-items:center}
+/* MEMBER CARDS */
+.mc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.25rem;cursor:pointer;transition:all .2s}
+.mc:hover{border-color:var(--border3);background:var(--bg3)}
+.mc-top{display:flex;align-items:center;gap:.75rem;margin-bottom:1rem}
+.mc-av{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0;font-family:'Syne',sans-serif}
+.mc-name{font-weight:600;font-size:.875rem}
+.mc-role{font-size:.72rem;color:var(--text3)}
+.mc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem}
+.mc-s{background:var(--bg3);border-radius:6px;padding:.5rem;text-align:center}
+.mc-sv{font-family:'Syne',sans-serif;font-size:.95rem;font-weight:800}
+.mc-sl{font-size:.6rem;color:var(--text3);margin-top:1px}
+/* MEMBER DETAIL MODAL */
+.detail-modal{max-width:680px}
+.dm-hd{display:flex;align-items:flex-start;gap:1.25rem;margin-bottom:1.5rem;padding-bottom:1.25rem;border-bottom:1px solid var(--border)}
+.dm-sec-title{font-size:.68rem;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin-bottom:.75rem;margin-top:1.25rem}
+.day-entry{display:flex;justify-content:space-between;align-items:flex-start;padding:.65rem 0;border-bottom:1px solid var(--border)}
+.day-entry:last-child{border-bottom:none}
+/* SETTINGS */
+.member-row{display:flex;align-items:center;gap:.75rem;padding:.65rem 0;border-bottom:1px solid var(--border)}
+.member-row:last-child{border-bottom:none}
+/* CALENDAR VIDEO CARDS */
+.cal-video{background:var(--bg4);border-radius:5px;padding:.3rem .4rem;cursor:pointer;transition:all .15s;border-left:2px solid transparent;position:relative}
+.cal-video:hover{background:var(--bg5)}
+.cal-video-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.cal-video-title{font-size:.66rem;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0}
+.cal-video-top{display:flex;align-items:flex-start;gap:.3rem}
+.cal-add-btn{background:transparent;border:1px dashed var(--border2);border-radius:4px;color:var(--text3);font-size:.7rem;cursor:pointer;padding:.15rem .35rem;width:100%;transition:all .15s}
+.cal-add-btn:hover{border-color:var(--accent);color:var(--accent);background:var(--accent-dim)}
+/* QUICK STATUS BUTTONS */
+.qsb-row{display:flex;gap:2px;margin-top:4px;flex-wrap:wrap}
+.qsb{border:none;border-radius:3px;padding:2px 5px;font-size:.58rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-weight:600;transition:all .15s;opacity:.65}
+.qsb:hover{opacity:1;filter:brightness(1.15)}
+.qsb.qsb-active{opacity:1;outline:1.5px solid rgba(255,255,255,.4);outline-offset:1px}
+/* CALENDAR SUMMARY STATS */
+.cal-summary{display:grid;grid-template-columns:repeat(5,1fr);gap:.75rem;margin-bottom:1.25rem}
+/* CALENDAR CHANNEL REPORT */
+.cal-ch-report{border-radius:var(--r-sm);padding:.85rem 1rem;background:var(--bg3);border:1px solid var(--border);margin-bottom:.6rem}
+/* NOTIFICATION */
+.notif{position:fixed;bottom:1.5rem;right:1.5rem;background:var(--bg2);border:1px solid var(--border2);border-radius:var(--r-sm);padding:.85rem 1.25rem;font-size:.82rem;z-index:9999;transform:translateY(100px);opacity:0;transition:all .3s;max-width:300px}
+.notif.show{transform:translateY(0);opacity:1}
+.notif-ok{border-left:2.5px solid var(--green)}.notif-err{border-left:2.5px solid var(--red)}
+/* MISC */
+.empty{text-align:center;padding:2.5rem;color:var(--text3);font-size:.875rem}
+.empty-icon{font-size:2rem;margin-bottom:.75rem;opacity:.4}
+.spinner{width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite}
+/* THIS WEEK SECTION (My Stats) */
+.week-band{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--r);padding:1.25rem;margin-bottom:1.5rem}
+.week-band-title{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.75rem}
+/* TAB PILLS */
+.tab-pills{display:flex;gap:.4rem;margin-bottom:1.25rem;background:var(--bg3);border-radius:var(--r-sm);padding:.3rem;width:fit-content}
+.tab-pill{padding:.35rem .9rem;border-radius:5px;font-size:.78rem;font-weight:500;cursor:pointer;color:var(--text3);transition:all .15s;border:none;background:none;font-family:'DM Sans',sans-serif}
+.tab-pill.active{background:var(--bg2);color:var(--text);border:1px solid var(--border2)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="notif" id="notif"></div>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay" style="display:none;position:fixed;inset:0;background:rgba(9,9,15,0.92);z-index:9999;align-items:center;justify-content:center;flex-direction:column;gap:1rem">
+  <div style="width:36px;height:36px;border:3px solid rgba(232,255,71,0.2);border-top-color:#e8ff47;border-radius:50%;animation:spin 0.8s linear infinite"></div>
+  <div id="loading-msg" style="font-size:.85rem;color:var(--text2)">Loading your data...</div>
+</div>
+
+<!-- LOGIN -->
+<div id="login-screen">
+  <div class="login-wrap">
+    <div class="login-brand">
+      <div class="login-brand-icon">📺</div>
+      <div>
+        <div class="login-brand-name">YT Team Manager</div>
+        <div class="login-brand-sub">Content Operations</div>
+      </div>
+    </div>
+    <div class="login-card">
+      <div class="login-title">Welcome back</div>
+      <div class="login-sub">Select your profile and enter your password.</div>
+      <div class="login-err" id="login-err">Incorrect password. Please try again.</div>
+      <label class="field-label">SELECT PROFILE</label>
+      <select class="field-select" id="login-sel"></select>
+      <label class="field-label">PASSWORD</label>
+      <div class="field-pass-wrap">
+        <input class="field-input" type="password" id="login-pass" placeholder="Your password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="pass-toggle" onclick="togglePass('login-pass',this)">👁</button>
+      </div>
+      <button class="btn-login" onclick="doLogin()">Sign In →</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app">
+ <div class="layout">
+  <div class="sidebar">
+    <div class="sb-top"><div class="sb-logo"><div class="sb-logo-icon">📺</div><div class="sb-logo-text">YT Manager</div></div></div>
+    <div class="sb-nav">
+      <div class="sb-section" id="emp-section">My Work</div>
+      <div class="sb-item active" id="snav-today" onclick="showPage('today')"><span class="sb-icon">☀️</span>Today</div>
+      <div class="sb-item" id="snav-my-logs" onclick="showPage('my-logs')"><span class="sb-icon">📋</span>My Reports</div>
+      <div class="sb-item" id="snav-my-tasks" onclick="showPage('my-tasks')"><span class="sb-icon">✅</span>My Tasks</div>
+      <div class="sb-item" id="snav-my-stats" onclick="showPage('my-stats')"><span class="sb-icon">📊</span>My Stats</div>
+      <div class="sb-section" id="mgr-section" style="display:none">Management</div>
+      <div class="sb-item" id="snav-dashboard" onclick="showPage('dashboard')" style="display:none"><span class="sb-icon">🏠</span>Dashboard</div>
+      <div class="sb-item" id="snav-calendar" onclick="showPage('calendar')" style="display:none"><span class="sb-icon">📅</span>Content Calendar</div>
+      <div class="sb-item" id="snav-weekly" onclick="showPage('weekly')" style="display:none"><span class="sb-icon">📌</span>Weekly Tasks</div>
+      <div class="sb-item" id="snav-reports" onclick="showPage('reports')" style="display:none"><span class="sb-icon">📈</span>Reports</div>
+      <div class="sb-item" id="snav-settings" onclick="showPage('settings')" style="display:none"><span class="sb-icon">⚙️</span>Settings</div>
+    </div>
+    <div class="sb-footer">
+      <div class="sb-user">
+        <div class="sb-av" id="sb-av">?</div>
+        <div style="flex:1;min-width:0"><div class="sb-uname" id="sb-name">-</div><div class="sb-urole" id="sb-role">-</div></div>
+        <button class="sb-logout" onclick="logout()" title="Sign out">⏻</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- TODAY (employees) -->
+    <div class="page active" id="page-today">
+      <div class="pg-hd fb">
+        <div><div class="pg-title">Today's Work</div><div class="pg-sub" id="today-date-str">-</div></div>
+      </div>
+      <div class="g2 gap">
+        <div class="card clock-card">
+          <div style="font-size:.68rem;color:var(--text3);letter-spacing:.1em;text-transform:uppercase">Current Time</div>
+          <div class="clock-time" id="live-clock">--:--:--</div>
+          <div class="clock-date-str" id="live-date2">-</div>
+          <button class="clock-btn cb-in" id="clock-btn" onclick="clockAction()">Clock In</button>
+          <div class="clock-info" id="clock-info">Not clocked in today</div>
+        </div>
+        <div class="card"><div class="ct">Today's Summary</div><div id="today-hrs-display"></div></div>
+      </div>
+      <div class="wl-form" style="background:linear-gradient(135deg,var(--bg2),var(--bg3));border:1px solid var(--border2);margin-bottom:1rem">
+        <div class="wl-title">⏱ Personal Work Timer</div>
+        <div style="display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap">
+          <div style="flex:1;min-width:180px;text-align:center">
+            <div id="timer-display" style="font-family:'DM Mono',monospace;font-size:2.8rem;font-weight:700;color:var(--accent);letter-spacing:.05em;line-height:1">00:00:00</div>
+            <div id="timer-status-label" style="font-size:.7rem;color:var(--text3);margin-top:.4rem">Not started</div>
+          </div>
+          <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+            <button id="timer-start-btn" onclick="timerStart()" class="btn b-accent" style="min-width:90px">▶ Start</button>
+            <button id="timer-stop-btn" onclick="timerStop()" class="btn b-ghost" style="min-width:90px;display:none">⏸ Stop</button>
+            <button id="timer-restart-btn" onclick="timerRestart()" class="btn b-ghost" style="min-width:90px;display:none">↺ Restart</button>
+            <button id="timer-reset-btn" onclick="timerReset()" style="background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.3);border-radius:var(--r-sm);padding:.55rem 1rem;font-size:.82rem;cursor:pointer;min-width:90px;display:none">✕ Reset</button>
+          </div>
+        </div>
+      </div>
+      <div class="wl-form">
+        <div class="wl-title">📝 Log Work Entry</div>
+        <div class="frow">
+          <div><label class="field-label">CHANNEL</label><select class="field-select" id="wl-ch" style="margin-bottom:0"></select></div>
+          <div><label class="field-label">WORK TYPE</label><select class="field-select" id="wl-type" style="margin-bottom:0"></select></div>
+        </div>
+        <div style="margin-top:1rem"><label class="field-label">TASK / VIDEO TITLE</label><input class="field-input" id="wl-task" placeholder="e.g. Edited 'Top 10 AI Tools' video" style="margin-bottom:0"></div>
+        <div class="frow" style="margin-top:1rem">
+          <div><label class="field-label">TIME SPENT</label>
+            <div class="time-inputs"><input class="time-inp" id="wl-hrs" type="number" min="0" max="23" placeholder="0"><span class="time-sep">hrs</span><input class="time-inp" id="wl-mins" type="number" min="0" max="59" placeholder="0"><span class="time-sep">min</span></div>
+          </div>
+          <div><label class="field-label">PROOF / DRIVE LINK</label><input class="field-input" id="wl-proof" placeholder="https://drive.google.com/..." style="margin-bottom:0"></div>
+        </div>
+        <div style="margin-top:1rem"><label class="field-label">NOTES (optional)</label><input class="field-input" id="wl-notes" placeholder="Any extra details..." style="margin-bottom:0"></div>
+        <div style="margin-top:1rem"><button class="btn b-accent" onclick="addWorkLog()">+ Submit Entry</button></div>
+      </div>
+      <div class="fb" style="margin-bottom:1rem"><div style="font-size:.875rem;font-weight:600">Today's Entries</div></div>
+      <div id="today-logs-list"></div>
+    </div>
+
+    <!-- MY REPORTS -->
+    <div class="page" id="page-my-logs">
+      <div class="pg-hd"><div class="pg-title">My Reports</div><div class="pg-sub">All your daily work logs</div></div>
+      <div id="my-logs-content"></div>
+    </div>
+
+    <!-- MY TASKS -->
+    <div class="page" id="page-my-tasks">
+      <div class="pg-hd"><div class="pg-title">My Tasks</div><div class="pg-sub">Weekly assignments from manager</div></div>
+      <div id="my-tasks-content"></div>
+    </div>
+
+    <!-- MY STATS (IMPROVED) -->
+    <div class="page" id="page-my-stats">
+      <div class="pg-hd fb">
+        <div><div class="pg-title">My Performance</div><div class="pg-sub">Your work statistics and trends</div></div>
+      </div>
+      <div id="my-stats-content"></div>
+    </div>
+
+    <!-- MANAGER DASHBOARD -->
+    <div class="page" id="page-dashboard">
+      <div class="pg-hd fb">
+        <div><div class="pg-title">Team Dashboard</div><div class="pg-sub">Click any member card for full details</div></div>
+        <select class="field-select" id="dash-week-sel" onchange="renderDashboard()" style="width:170px;margin-bottom:0;font-size:.78rem;padding:.45rem .75rem"></select>
+      </div>
+      <div class="g4 gap">
+        <div class="stat s-blue"><div class="s-label">Team Members</div><div class="s-val" id="ds-members">-</div></div>
+        <div class="stat s-green"><div class="s-label">Present Today</div><div class="s-val" id="ds-present">-</div></div>
+        <div class="stat s-amber"><div class="s-label">Entries Today</div><div class="s-val" id="ds-entries">-</div></div>
+        <div class="stat s-red"><div class="s-label">Absent Today</div><div class="s-val" id="ds-absent">-</div></div>
+      </div>
+      <div id="team-cards-grid" class="gap"></div>
+      <div class="card">
+        <div class="ct">Attendance — Today</div>
+        <div id="team-att-today"></div>
+      </div>
+    </div>
+
+    <!-- CONTENT CALENDAR -->
+    <div class="page" id="page-calendar">
+      <div class="pg-hd fb">
+        <div><div class="pg-title">Content Calendar</div><div class="pg-sub">Plan and track video uploads by channel</div></div>
+        <div class="fg">
+          <button class="btn b-ghost" onclick="calPrevWeek()">← Prev</button>
+          <span id="cal-week-label" style="font-size:.85rem;font-weight:600;min-width:150px;text-align:center">-</span>
+          <button class="btn b-ghost" onclick="calNextWeek()">Next →</button>
+          <button class="btn b-accent" onclick="openAddVideoModal()">+ Add Video</button>
+        </div>
+      </div>
+      <!-- Channel Cards -->
+      <div id="channel-cards-grid" class="gap"></div>
+      <!-- Weekly summary stats -->
+      <div class="cal-summary gap" id="cal-summary"></div>
+      <!-- Calendar grid -->
+      <div class="card" style="padding:1.5rem;overflow-x:auto">
+        <div id="cal-grid"></div>
+      </div>
+      <!-- Status legend -->
+      <div class="fg" style="margin-top:1rem;gap:1rem;flex-wrap:wrap">
+        <span style="font-size:.75rem;color:var(--text3)">Status:</span>
+        <span class="fg" style="gap:.35rem"><span style="width:8px;height:8px;border-radius:50%;background:#f59e0b;display:inline-block"></span><span style="font-size:.75rem;color:var(--text2)">Planned</span></span>
+        <span class="fg" style="gap:.35rem"><span style="width:8px;height:8px;border-radius:50%;background:#60a5fa;display:inline-block"></span><span style="font-size:.75rem;color:var(--text2)">In Production</span></span>
+        <span class="fg" style="gap:.35rem"><span style="width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block"></span><span style="font-size:.75rem;color:var(--text2)">Ready</span></span>
+        <span class="fg" style="gap:.35rem"><span style="width:8px;height:8px;border-radius:50%;background:#a78bfa;display:inline-block"></span><span style="font-size:.75rem;color:var(--text2)">Uploaded</span></span>
+        <span class="fg" style="gap:.35rem"><span style="width:8px;height:8px;border-radius:50%;background:#ef4444;display:inline-block"></span><span style="font-size:.75rem;color:var(--text2)">Missed</span></span>
+        <span style="font-size:.72rem;color:var(--text3);margin-left:.5rem">· Click video to edit · Use status buttons for quick updates</span>
+      </div>
+    </div>
+
+    <!-- WEEKLY TASKS -->
+    <div class="page" id="page-weekly">
+      <div class="pg-hd fb">
+        <div><div class="pg-title">Weekly Tasks</div><div class="pg-sub">Assign tasks to team members</div></div>
+        <button class="btn b-accent" onclick="openTaskModal()">+ Assign Task</button>
+      </div>
+      <div id="weekly-content"></div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="page" id="page-reports">
+      <div class="pg-hd fb">
+        <div><div class="pg-title">Reports</div><div class="pg-sub">Weekly & monthly performance + calendar</div></div>
+        <div class="fg">
+          <select class="field-select" id="rep-week-sel" onchange="switchRepView('weekly')" style="width:185px;margin-bottom:0;font-size:.78rem;padding:.45rem .75rem"></select>
+          <select class="field-select" id="rep-month-sel" onchange="renderMonthlyReport()" style="width:150px;margin-bottom:0;font-size:.78rem;padding:.45rem .75rem;display:none"></select>
+          <button class="btn b-accent" id="rep-btn-weekly" onclick="switchRepView('weekly')" style="font-size:.78rem;padding:.45rem .85rem">📋 Weekly</button>
+          <button class="btn b-ghost" id="rep-btn-monthly" onclick="switchRepView('monthly')" style="font-size:.78rem;padding:.45rem .85rem">📅 Monthly</button>
+        </div>
+      </div>
+      <div id="reports-content"></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="page" id="page-settings">
+      <div class="pg-hd"><div class="pg-title">Settings</div><div class="pg-sub">Manage team, channels, categories &amp; Google Sheets sync</div></div>
+
+      <!-- IP RESTRICTION CARD — manager only -->
+      <div class="card gap" id="ip-card" style="margin-bottom:1.5rem;border-color:rgba(96,165,250,0.25);display:none">
+        <div class="fb" style="margin-bottom:.9rem">
+          <div style="display:flex;align-items:center;gap:.6rem">
+            <span style="font-size:1.2rem">🔒</span>
+            <div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem">IP Restriction</div>
+              <div style="font-size:.72rem;color:var(--text3);margin-top:1px">Employees can only login from allowed IPs. Manager bypasses this restriction.</div>
+            </div>
+          </div>
+          <div id="ip-badge" class="badge bgy">Disabled</div>
+        </div>
+        <div style="font-size:.72rem;color:var(--text2);margin-bottom:.6rem">Your current IP: <span id="ip-current" style="font-family:'DM Mono',monospace;color:var(--accent)">detecting...</span></div>
+        <div style="display:grid;grid-template-columns:1fr auto auto;gap:.6rem;align-items:center;margin-bottom:.6rem">
+          <input class="field-input" id="ip-input" placeholder="e.g. 182.191.100.50" style="margin-bottom:0;font-family:'DM Mono',monospace;font-size:.8rem">
+          <button class="btn b-accent" onclick="ipAdd()">Add IP</button>
+          <button class="btn b-ghost" onclick="ipAddCurrent()">Use My IP</button>
+        </div>
+        <div id="ip-list" style="margin-bottom:.75rem"></div>
+        <label style="display:flex;align-items:center;gap:.5rem;cursor:pointer;font-size:.82rem">
+          <input type="checkbox" id="ip-enabled" onchange="ipToggle()" style="accent-color:var(--accent)">
+          Enable IP Restriction
+          <span style="font-size:.7rem;color:var(--text3)">(employees only — manager always passes)</span>
+        </label>
+      </div>
+
+      <!-- GOOGLE SHEETS SYNC CARD -->
+      <div class="card gap" style="margin-bottom:1.5rem;border-color:rgba(232,255,71,0.2)">
+        <div class="fb" style="margin-bottom:1rem">
+          <div style="display:flex;align-items:center;gap:.6rem">
+            <span style="font-size:1.2rem">📊</span>
+            <div>
+              <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:.95rem">Google Sheets Sync</div>
+              <div style="font-size:.72rem;color:var(--text3);margin-top:1px">Paste your Apps Script URL to sync all data to Google Sheets</div>
+            </div>
+          </div>
+          <div id="gs-status-badge" class="badge bgy">Not Connected</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr auto auto;gap:.6rem;align-items:center">
+          <input class="field-input" id="gs-url-input" placeholder="https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec" style="margin-bottom:0;font-size:.75rem;font-family:'DM Mono',monospace">
+          <button class="btn b-accent" onclick="saveGSUrl()">Connect</button>
+          <button class="btn b-ghost" onclick="testGSConnection()" id="gs-test-btn" style="display:none">Test</button>
+        </div>
+        <div id="gs-url-saved" style="display:none;margin-top:.6rem;font-size:.75rem;color:var(--text2)">
+          <span style="color:var(--green)">&#10003; Connected:</span> <span id="gs-url-display" style="font-family:'DM Mono',monospace;color:var(--text3);font-size:.7rem"></span>
+          <button onclick="clearGSUrl()" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:.72rem;margin-left:.5rem">Disconnect</button>
+        </div>
+        <div id="gs-sync-row" style="display:none;margin-top:.85rem;border-top:1px solid var(--border);padding-top:.85rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem">
+            <div>
+              <div style="font-size:.78rem;font-weight:600">Sync All Data</div>
+              <div style="font-size:.7rem;color:var(--text3);margin-top:2px">Push attendance, work logs, tasks &amp; videos to Google Sheet</div>
+            </div>
+            <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+              <span id="gs-last-sync" style="font-size:.7rem;color:var(--text3)"></span>
+              <button class="btn b-green" onclick="syncAllToSheets()" id="gs-sync-btn">&#8679; Sync to Sheets</button>
+              <button class="btn b-ghost" onclick="loadFromSheets()" id="gs-load-btn">&#8681; Load from Sheets</button>
+            </div>
+          </div>
+          <div id="gs-sync-log" style="margin-top:.75rem;background:var(--bg3);border-radius:var(--r-sm);padding:.65rem .85rem;font-size:.72rem;color:var(--text2);font-family:'DM Mono',monospace;display:none;max-height:80px;overflow-y:auto;white-space:pre-wrap"></div>
+        </div>
+      </div>
+
+      <div class="g2">
+        <div>
+          <div class="card gap">
+            <div class="fb" style="margin-bottom:1.1rem"><div class="ct" style="margin:0">Team Members</div><button class="btn b-accent b-sm" onclick="openMemberModal()">+ Add</button></div>
+            <div id="settings-members"></div>
+          </div>
+          <div class="card">
+            <div class="fb" style="margin-bottom:1.1rem"><div class="ct" style="margin:0">Work Categories</div><button class="btn b-accent b-sm" onclick="openCatModal()">+ Add</button></div>
+            <div id="settings-cats"></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="fb" style="margin-bottom:1.1rem"><div class="ct" style="margin:0">YouTube Channels</div><button class="btn b-accent b-sm" onclick="openChannelModal()">+ Add</button></div>
+            <div id="settings-channels"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+ </div>
+</div>
+
+<!-- MODALS -->
+<div class="modal-bg" id="modal-member">
+  <div class="modal">
+    <div class="mhd"><div class="mtitle">Add Team Member</div><button class="mx" onclick="closeModal('modal-member')">✕</button></div>
+    <label class="field-label">FULL NAME</label><input class="field-input" id="m-name" placeholder="e.g. Ali Hassan">
+    <label class="field-label">ROLE / TITLE</label><input class="field-input" id="m-role" placeholder="e.g. Video Editor, Web Developer">
+    <label class="field-label">ACCESS LEVEL</label>
+    <select class="field-select" id="m-mgr"><option value="0">Employee — Regular access</option><option value="1">Manager — Full access</option></select>
+    <label class="field-label">PASSWORD</label>
+    <div class="field-pass-wrap"><input class="field-input" type="password" id="m-pass" placeholder="Set a password" style="margin-bottom:0"><button class="pass-toggle" onclick="togglePass('m-pass',this)">👁</button></div>
+    <div class="mft"><button class="btn b-ghost" onclick="closeModal('modal-member')">Cancel</button><button class="btn b-accent" onclick="saveMember()">Add Member</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-channel">
+  <div class="modal">
+    <div class="mhd"><div class="mtitle">Add Channel</div><button class="mx" onclick="closeModal('modal-channel')">✕</button></div>
+    <label class="field-label">CHANNEL NAME</label><input class="field-input" id="ch-name" placeholder="e.g. Tech Urdu">
+    <label class="field-label">COLOR</label>
+    <select class="field-select" id="ch-color">
+      <option value="#60a5fa">Blue</option><option value="#f59e0b">Amber</option><option value="#22c55e">Green</option>
+      <option value="#f472b6">Pink</option><option value="#a78bfa">Purple</option><option value="#2dd4bf">Teal</option>
+      <option value="#fb923c">Orange</option><option value="#e8ff47">Yellow</option>
+    </select>
+    <div class="mft"><button class="btn b-ghost" onclick="closeModal('modal-channel')">Cancel</button><button class="btn b-accent" onclick="saveChannel()">Add Channel</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-cat">
+  <div class="modal">
+    <div class="mhd"><div class="mtitle">Add Work Category</div><button class="mx" onclick="closeModal('modal-cat')">✕</button></div>
+    <label class="field-label">CATEGORY NAME</label><input class="field-input" id="cat-name" placeholder="e.g. Video Editing, Script Writing">
+    <div class="mft"><button class="btn b-ghost" onclick="closeModal('modal-cat')">Cancel</button><button class="btn b-accent" onclick="saveCat()">Add</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-task">
+  <div class="modal">
+    <div class="mhd"><div class="mtitle">Assign Weekly Task</div><button class="mx" onclick="closeModal('modal-task')">✕</button></div>
+    <label class="field-label">ASSIGN TO</label><select class="field-select" id="t-member"></select>
+    <div class="frow">
+      <div><label class="field-label">CHANNEL</label><select class="field-select" id="t-channel"></select></div>
+      <div><label class="field-label">WEEK</label><input class="field-input" type="week" id="t-week"></div>
+    </div>
+    <label class="field-label">TASK DESCRIPTION</label><input class="field-input" id="t-desc" placeholder="e.g. Edit 3 videos for this channel">
+    <div class="frow">
+      <div><label class="field-label">TARGET (optional)</label><input class="field-input" id="t-target" type="number" placeholder="e.g. 3"></div>
+      <div><label class="field-label">UNIT (optional)</label><input class="field-input" id="t-unit" placeholder="e.g. videos"></div>
+    </div>
+    <label class="field-label">NOTES (optional)</label><input class="field-input" id="t-notes" placeholder="Extra instructions..." style="margin-bottom:0">
+    <div class="mft"><button class="btn b-ghost" onclick="closeModal('modal-task')">Cancel</button><button class="btn b-accent" onclick="saveTask()">Assign Task</button></div>
+  </div>
+</div>
+
+<!-- ADD CALENDAR VIDEO -->
+<div class="modal-bg" id="modal-cal-video">
+  <div class="modal">
+    <div class="mhd"><div class="mtitle">Add to Calendar</div><button class="mx" onclick="closeModal('modal-cal-video')">✕</button></div>
+    <label class="field-label">CHANNEL</label>
+    <select class="field-select" id="cv-channel"></select>
+    <label class="field-label">VIDEO TITLE</label>
+    <input class="field-input" id="cv-title" placeholder="e.g. Top 10 AI Tools in 2025">
+    <div class="frow">
+      <div>
+        <label class="field-label">DATE</label>
+        <input class="field-select" id="cv-date" type="date" onchange="cvDateChanged()">
+        <input type="hidden" id="cv-day" value="Mon">
+      </div>
+      <div><label class="field-label">STATUS</label>
+        <select class="field-select" id="cv-status">
+          <option value="Planned">Planned</option>
+          <option value="In Production">In Production</option>
+          <option value="Ready">Ready</option>
+          <option value="Uploaded">Uploaded</option>
+          <option value="Missed">Missed</option>
+        </select>
+      </div>
+    </div>
+    <div style="font-size:.75rem;color:var(--text2);margin-top:-.5rem;margin-bottom:.75rem" id="cv-day-label"></div>
+    <div class="frow">
+      <div>
+        <label class="field-label">UPLOAD TIME (optional)</label>
+        <input class="field-input" id="cv-time" type="time" placeholder="14:00" style="margin-bottom:0">
+      </div>
+    </div>
+    <label class="field-label" style="margin-top:.75rem">NOTES (optional)</label>
+    <input class="field-input" id="cv-notes" placeholder="e.g. Focus on SEO, trending topic..." style="margin-bottom:0">
+    <div class="mft"><button class="btn b-ghost" onclick="closeModal('modal-cal-video')">Cancel</button><button class="btn b-accent" onclick="saveCalVideo()">Add to Calendar</button></div>
+  </div>
+</div>
+
+<!-- VIDEO STATUS EDIT -->
+<div class="modal-bg" id="modal-cal-edit">
+  <div class="modal">
+    <div class="mhd"><div class="mtitle">Edit Video</div><button class="mx" onclick="closeModal('modal-cal-edit')">✕</button></div>
+    <input type="hidden" id="ce-id">
+    <label class="field-label">VIDEO TITLE</label><input class="field-input" id="ce-title">
+    <div class="frow">
+      <div><label class="field-label">DAY</label>
+        <select class="field-select" id="ce-day">
+          <option value="Mon">Monday</option><option value="Tue">Tuesday</option><option value="Wed">Wednesday</option>
+          <option value="Thu">Thursday</option><option value="Fri">Friday</option><option value="Sat">Saturday</option><option value="Sun">Sunday</option>
+        </select>
+      </div>
+      <div><label class="field-label">STATUS</label>
+        <select class="field-select" id="ce-status">
+          <option value="Planned">Planned</option>
+          <option value="In Production">In Production</option>
+          <option value="Ready">Ready</option>
+          <option value="Uploaded">Uploaded</option>
+          <option value="Missed">Missed</option>
+        </select>
+      </div>
+    </div>
+    <label class="field-label">TIME (optional)</label><input class="field-input" id="ce-time" type="time">
+    <label class="field-label">NOTES</label><input class="field-input" id="ce-notes" style="margin-bottom:0">
+    <div class="mft">
+      <button class="btn b-danger" onclick="deleteCalVideo(document.getElementById('ce-id').value)">Delete</button>
+      <button class="btn b-ghost" onclick="closeModal('modal-cal-edit')">Cancel</button>
+      <button class="btn b-accent" onclick="updateCalVideo()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEMBER DETAIL (Manager) -->
+<div class="modal-bg" id="modal-detail">
+  <div class="modal detail-modal">
+    <div class="mhd"><div class="mtitle" id="detail-title">Member Details</div><button class="mx" onclick="closeModal('modal-detail')">✕</button></div>
+    <div id="detail-content"></div>
+  </div>
+</div>
+
+<!-- CHANNEL DETAIL MODAL -->
+<div class="modal-bg" id="modal-channel-detail">
+  <div class="modal detail-modal">
+    <div class="mhd"><div class="mtitle" id="ch-detail-title">Channel Details</div><button class="mx" onclick="closeModal('modal-channel-detail')">✕</button></div>
+    <div id="ch-detail-content"></div>
+  </div>
+</div>
+
+<!-- PASSWORD CHANGE -->
+<div class="modal-bg" id="modal-passwd">
+  <div class="modal">
+    <div class="mhd"><div class="mtitle">Change Password</div><button class="mx" onclick="closeModal('modal-passwd')">✕</button></div>
+    <input type="hidden" id="passwd-id">
+    <label class="field-label">NEW PASSWORD</label>
+    <div class="field-pass-wrap"><input class="field-input" type="password" id="passwd-new" placeholder="Minimum 4 characters" style="margin-bottom:0"><button class="pass-toggle" onclick="togglePass('passwd-new',this)">👁</button></div>
+    <div class="mft"><button class="btn b-ghost" onclick="closeModal('modal-passwd')">Cancel</button><button class="btn b-accent" onclick="savePassword()">Update</button></div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════
+// DATA
+// ════════════════════════════════════════════
+const DBK = 'ytm_v3';
+function loadDB(){ try{ return JSON.parse(localStorage.getItem(DBK))||defaultDB(); }catch{ return defaultDB(); } }
+function saveDB(){ localStorage.setItem(DBK, JSON.stringify(DB)); }
+function defaultDB(){
+  return {
+    members:[{id:'m0',name:'Manager',role:'Manager',isManager:true,password:'admin123',color:'#e8ff47'}],
+    channels:[{name:'Tech Urdu',color:'#60a5fa'},{name:'Islam Guides',color:'#22c55e'},{name:'Cooking PK',color:'#f59e0b'}],
+    categories:['Video Editing','Script Writing','Thumbnail Design','Title Research','Uploading','Voiceover','Web Development','Social Media'],
+    workLogs:[],
+    attendance:[],
+    tasks:[],
+    calVideos:[] // {id,channel,title,day,week,status,time,notes}
+  };
+}
+let DB = loadDB();
+if(!DB.settings) DB.settings = {}; // synced key/value settings (IP restriction etc.)
+let CU = null;
+let CAL_WEEK = getCurrentWeekStr();
+
+const COLORS = ['#e8ff47','#60a5fa','#f472b6','#34d399','#fb923c','#a78bfa','#38bdf8','#f87171','#4ade80','#facc15'];
+// UPDATED: Uploaded = purple, Missed = red (new!)
+const STATUS_COLORS = {
+  'Planned':'#f59e0b',
+  'In Production':'#60a5fa',
+  'Ready':'#22c55e',
+  'Uploaded':'#a78bfa',
+  'Missed':'#ef4444'
+};
+const STATUS_ORDER = ['Planned','In Production','Ready','Uploaded','Missed'];
+const DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const DAY_FULL = {Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'};
+
+function mColor(m){ return m.color || COLORS[DB.members.indexOf(m)%COLORS.length]; }
+function chColor(chName){ const c=DB.channels.find(x=>x.name===chName); return c?.color||'#60a5fa'; }
+
+// ════════════════════════════════════════════
+// LOADING OVERLAY HELPERS
+// ════════════════════════════════════════════
+function showLoading(msg='Loading...'){
+  const ov=document.getElementById('loading-overlay');
+  document.getElementById('loading-msg').textContent=msg;
+  ov.style.display='flex';
+}
+function hideLoading(){
+  document.getElementById('loading-overlay').style.display='none';
+}
+
+// ════════════════════════════════════════════
+// LOAD ALL DATA FROM GOOGLE SHEET
+// Merges Sheet data into local DB so every
+// user sees everyone's latest data
+// ════════════════════════════════════════════
+// ════════════════════════════════════════
+// GLOBAL DATE/TIME HELPERS FOR SHEET DATA
+// ════════════════════════════════════════
+function fixSheetTime(val){
+  if(!val && val!==0) return '';
+  if(val===null||val===undefined) return '';
+  const s = String(val).trim();
+  if(s===''||s==='null'||s==='undefined'||s==='None'||s==='none') return '';
+  if(s==='Incomplete') return 'Incomplete';
+  if(/^\d{1,2}:\d{2}$/.test(s)) return s;
+  if(s.includes('T')){
+    // FIX: Convert UTC timestamp to LOCAL time (handles UTC+5 Pakistan timezone)
+    // e.g. 1899-12-30T09:23:00.000Z → in PKT (UTC+5) = 14:23
+    try{
+      const dt=new Date(s);
+      if(!isNaN(dt.getTime())){
+        return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+      }
+      const p=s.split('T')[1].split(':'); return p[0].padStart(2,'0')+':'+p[1].padStart(2,'0');
+    }catch(e){return '';}
+  }
+  if(!isNaN(+val)&&+val>0&&+val<1){
+    const m=Math.round(+val*24*60); return String(Math.floor(m/60)%24).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+  }
+  return s;
+}
+function fixSheetDate(val){
+  if(!val) return '';
+  const s=String(val).trim();
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+  if(s.includes('T')){
+    // Check for 1899 time-only values first
+    const datePart=s.split('T')[0];
+    if(datePart.startsWith('1899')) return '';
+    // FIX: Convert UTC timestamp to LOCAL date (handles UTC+5 Pakistan timezone)
+    try{
+      const dt=new Date(s);
+      if(isNaN(dt.getTime())) return datePart;
+      return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+    }catch(e){return datePart;}
+  }
+  if(!isNaN(+val)&&+val>1){
+    try{const d=new Date(Math.round((+val-25569)*86400*1000)); return d.toISOString().split('T')[0];}catch(e){return '';}
+  }
+  return s;
+}
+
+async function loadAllFromSheet(){
+  try {
+    const r = await fetch(HARDCODED_GS_URL+'?action=getAll');
+    const d = await r.json();
+    if(d.error){ console.warn('Sheet load error:',d.error); return; }
+
+    // ── HELPER: fix Sheet time values ──
+    // Sheet returns time as "1899-12-30T09:56:48.000Z" or numeric fraction
+    function fixTime(val){
+      if(!val && val!==0) return '';
+      const s = String(val).trim();
+      if(s==='' || s==='null' || s==='undefined') return '';
+      if(s==='Incomplete') return 'Incomplete';
+      if(/^\d{1,2}:\d{2}$/.test(s)) return s; // already HH:MM
+      if(s.includes('T')){
+        // FIX: Convert UTC timestamp to LOCAL time (handles UTC+5 Pakistan timezone)
+        // e.g. 1899-12-30T09:23:00.000Z → in PKT (UTC+5) = 14:23
+        try {
+          const dt = new Date(s);
+          if(!isNaN(dt.getTime())){
+            return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+          }
+          const timePart = s.split('T')[1];
+          const parts = timePart.split(':');
+          return parts[0].padStart(2,'0')+':'+parts[1].padStart(2,'0');
+        } catch(e){ return ''; }
+      }
+      if(!isNaN(+val) && +val > 0 && +val < 1){
+        // Numeric fraction of day (Google Sheets time format)
+        const totalMins = Math.round(+val * 24 * 60);
+        const h = Math.floor(totalMins/60)%24;
+        const m = totalMins%60;
+        return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0');
+      }
+      return s;
+    }
+
+    // ── HELPER: fix Sheet date values ──
+    function fixDate(val){
+      if(!val) return '';
+      const s = String(val).trim();
+      if(/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; // already YYYY-MM-DD
+      if(s.includes('T')){
+        const datePart = s.split('T')[0];
+        // Ignore 1899 dates (those are time-only values)
+        if(datePart.startsWith('1899')) return '';
+        // FIX: Convert UTC timestamp to LOCAL date (handles UTC+5 Pakistan timezone)
+        // e.g. 2026-05-12T19:00:00.000Z → in PKT (UTC+5) = 2026-05-13T00:00:00
+        try {
+          const dt = new Date(s);
+          if(isNaN(dt.getTime())) return datePart;
+          return dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
+        } catch(e){ return datePart; }
+      }
+      if(!isNaN(+val) && +val > 1){
+        // Numeric serial date (days since 1899-12-30)
+        try {
+          const d = new Date(Math.round((+val - 25569) * 86400 * 1000));
+          return d.toISOString().split('T')[0];
+        } catch(e){ return ''; }
+      }
+      return s;
+    }
+
+    // ── Members ──
+    if(d.members && d.members.length){
+      const sheetIds = d.members.map(m=>String(m.id));
+      DB.members = DB.members.filter(m=>{
+        if(m.isManager || m.id==='m0') return true;
+        return sheetIds.includes(String(m.id));
+      });
+      d.members.forEach(sm=>{
+        const local=DB.members.find(x=>String(x.id)===String(sm.id));
+        if(local){
+          local.name  = sm.name  || local.name;
+          local.role  = sm.role  || local.role;
+          local.color = sm.color || local.color;
+          local.isManager = sm.isManager || local.isManager;
+          if(sm.password && String(sm.password).trim()) local.password = String(sm.password).trim();
+        } else {
+          DB.members.push({...sm, password: String(sm.password||'').trim()||'1234'});
+        }
+      });
+    }
+
+    // ── Channels ──
+    if(d.channels && d.channels.length){
+      d.channels.forEach(sc=>{
+        if(!DB.channels.find(x=>x.name===sc.name))
+          DB.channels.push(sc);
+      });
+    }
+
+    // ── Categories ──
+    if(d.categories && d.categories.length){
+      d.categories.forEach(sc=>{
+        const name = String(sc.name||sc||'').trim();
+        if(name && !DB.categories.includes(name))
+          DB.categories.push(name);
+      });
+    }
+
+    // ── Attendance ──
+    if(d.attendance && d.attendance.length){
+      d.attendance.forEach(sa=>{
+        if(!sa.memberId) return;
+        const cleanDate    = fixDate(sa.date);
+        const cleanClockIn = fixTime(sa.clockIn);
+        const cleanClockOut= fixTime(sa.clockOut);
+        if(!cleanDate) return; // skip rows with no valid date
+
+        // Recalculate hours if needed
+        let cleanHours = parseFloat(sa.hours)||0;
+        if(cleanHours===0 && cleanClockIn && cleanClockOut && cleanClockOut!=='Incomplete'){
+          try {
+            const [ih,im]=cleanClockIn.split(':').map(Number);
+            const [oh,om]=cleanClockOut.split(':').map(Number);
+            const calc = ((oh*60+om)-(ih*60+im))/60;
+            if(calc>0) cleanHours=Math.round(calc*10)/10;
+          } catch(e){}
+        }
+
+        const normalized = {
+          memberId: String(sa.memberId),
+          date:     cleanDate,
+          clockIn:  cleanClockIn,
+          clockOut: cleanClockOut,
+          hours:    cleanHours
+        };
+        const idx=DB.attendance.findIndex(x=>
+          String(x.memberId)===String(sa.memberId) && String(x.date)===cleanDate
+        );
+        if(idx>=0){
+          // FIX: Priority-based deduplication
+          // complete (clockIn+clockOut) > partial (clockIn only) > empty/Incomplete-only
+          const existing=DB.attendance[idx];
+          const newHasIn  = !!normalized.clockIn;
+          const newHasBoth= !!(normalized.clockIn && normalized.clockOut && normalized.clockOut!=='Incomplete');
+          const oldHasIn  = !!existing.clockIn;
+          const oldHasBoth= !!(existing.clockIn && existing.clockOut && existing.clockOut!=='Incomplete');
+          const newPriority = newHasBoth ? 2 : (newHasIn ? 1 : 0);
+          const oldPriority = oldHasBoth ? 2 : (oldHasIn ? 1 : 0);
+          // Only replace if new record is equal or higher priority
+          // (this prevents an Incomplete/empty record from overwriting a valid clockIn)
+          if(newPriority >= oldPriority) DB.attendance[idx]={...normalized};
+        } else {
+          DB.attendance.push(normalized);
+        }
+      });
+    }
+
+    // ── WorkLogs ──
+    if(d.workLogs && d.workLogs.length){
+      d.workLogs.forEach(sl=>{
+        if(!sl.id) return;
+        const normalized = {
+          id:       String(sl.id),
+          memberId: String(sl.memberId||''),
+          date:     fixDate(sl.date)||String(sl.date||''),
+          channel:  String(sl.channel||''),
+          type:     String(sl.type||''),
+          task:     String(sl.task||''),
+          hrs:      isNaN(+sl.hrs)?0:+sl.hrs,
+          mins:     isNaN(+sl.mins)?0:+sl.mins,
+          proof:    String(sl.proof||''),
+          notes:    String(sl.notes||sl.note||'')
+        };
+        const idx=DB.workLogs.findIndex(x=>String(x.id)===String(sl.id));
+        if(idx>=0) DB.workLogs[idx]={...normalized};
+        else DB.workLogs.push(normalized);
+      });
+    }
+
+    // ── Tasks ──
+    if(d.tasks && d.tasks.length){
+      d.tasks.forEach(st=>{
+        if(!st.id) return;
+        const taskDesc = String(st.title||st.desc||'').trim();
+        if(!taskDesc) return;
+        const normalized = {
+          id:       String(st.id),
+          memberId: String(st.memberId||''),
+          desc:     taskDesc,
+          title:    taskDesc,
+          channel:  String(st.channel||''),
+          type:     String(st.type||''),
+          target:   isNaN(+st.target)?0:+st.target,
+          done:     isNaN(+st.done)?0:+st.done,
+          week:     String(st.week||''),
+          unit:     String(st.unit||''),
+          notes:    String(st.note||st.notes||'')
+        };
+        const idx=DB.tasks.findIndex(x=>String(x.id)===String(st.id));
+        if(idx>=0) DB.tasks[idx]={...normalized};
+        else DB.tasks.push(normalized);
+      });
+    }
+
+    // ── CalVideos ──
+    if(d.calVideos && d.calVideos.length){
+      d.calVideos.forEach(sv=>{
+        if(!sv.id) return;
+        const normalized = {
+          id:      String(sv.id),
+          title:   String(sv.title||''),
+          channel: String(sv.channel||''),
+          status:  String(sv.status||'Planned'),
+          day:     String(sv.day||'Mon'),
+          week:    String(sv.week||''),
+          time:    fixTime(sv.time),
+          notes:   String(sv.notes||''),
+          date:    fixDate(sv.date)||String(sv.date||'')
+        };
+        const idx=DB.calVideos.findIndex(x=>String(x.id)===String(sv.id));
+        if(idx>=0) DB.calVideos[idx]={...normalized};
+        else DB.calVideos.push(normalized);
+      });
+    }
+
+    // ── Settings (IP restriction etc.) ──
+    if(d.settings) applySettingsFromSheet(d.settings);
+
+    saveDB();
+    // Normalize all dates/times after loading
+    if(typeof normalizeDB === 'function') normalizeDB();
+    console.log('✓ Sheet data loaded — members:'+DB.members.length+' att:'+DB.attendance.length+' logs:'+DB.workLogs.length);
+  } catch(e){
+    console.warn('Could not load from Sheet:', e.message);
+  }
+}
+
+
+// ════════════════════════════════════════════
+// AUTH
+// ════════════════════════════════════════════
+function populateLoginDrop(){
+  const s=document.getElementById('login-sel');
+  s.innerHTML='<option value="">Choose your name...</option>'+
+    DB.members.map(m=>`<option value="${m.id}">${m.name}${m.isManager?' (Manager)':''}</option>`).join('');
+}
+// ════════════════════════════════════════════
+// IP RESTRICTION
+// ════════════════════════════════════════════
+const IP_IPS_KEY='ytm_allowed_ips';
+const IP_ON_KEY='ytm_ip_on';
+// NEW: settings ab Google Sheet ke "Settings" sheet se sync hote hain,
+// taake IP restriction sab devices/browsers pe ek jaisi apply ho —
+// pehle ye sirf localStorage mein thi (sirf jis device pe set ki wahi tak mehdood).
+// localStorage sirf offline fallback/cache ke tor par use hoti hai ab.
+function applySettingsFromSheet(s){
+  if(!s) return;
+  DB.settings = DB.settings || {};
+  Object.assign(DB.settings, s);
+  saveDB();
+  if(s.ip_on!==undefined)       localStorage.setItem(IP_ON_KEY, s.ip_on);
+  if(s.allowed_ips!==undefined) localStorage.setItem(IP_IPS_KEY, s.allowed_ips);
+}
+function ipGetList(){
+  try{
+    if(DB.settings && DB.settings.allowed_ips!==undefined) return JSON.parse(DB.settings.allowed_ips||'[]');
+  }catch{}
+  try{return JSON.parse(localStorage.getItem(IP_IPS_KEY))||[];}catch{return[];}
+}
+function ipSaveList(a){
+  DB.settings = DB.settings || {};
+  DB.settings.allowed_ips = JSON.stringify(a);
+  saveDB();
+  localStorage.setItem(IP_IPS_KEY,JSON.stringify(a));
+  gsPost('saveSetting',{key:'allowed_ips',value:JSON.stringify(a)});
+}
+function ipIsOn(){
+  if(DB.settings && DB.settings.ip_on!==undefined) return DB.settings.ip_on==='true';
+  return localStorage.getItem(IP_ON_KEY)==='true';
+}
+async function ipFetch(){
+  // Try multiple IP APIs in sequence
+  const apis=[
+    'https://api.ipify.org?format=json',
+    'https://api64.ipify.org?format=json',
+    'https://api.my-ip.io/ip.json'
+  ];
+  for(const url of apis){
+    try{
+      const r=await fetch(url,{cache:'no-store'});
+      const d=await r.json();
+      const ip=d.ip||d.YOUR_IP||'';
+      if(ip)return ip.trim();
+    }catch{}
+  }
+  return '';
+}
+async function ipCheckAccess(member){
+  if(member.isManager)return{ok:true,ip:''};  // manager always passes
+  if(!ipIsOn())return{ok:true,ip:''};          // restriction off
+  const list=ipGetList();
+  if(!list.length)return{ok:true,ip:''};       // no IPs set yet
+  const current=await ipFetch();
+  if(!current)return{ok:false,ip:'unknown'};   // can't detect → BLOCK (safe default)
+  return{ok:list.includes(current),ip:current};
+}
+function ipRender(){
+  const list=ipGetList(),on=ipIsOn();
+  const badge=document.getElementById('ip-badge');
+  const tog=document.getElementById('ip-enabled');
+  const listEl=document.getElementById('ip-list');
+  if(!badge)return;
+  badge.className=on?'badge bgg':'badge bgy';
+  badge.textContent=on?'Enabled':'Disabled';
+  if(tog)tog.checked=on;
+  if(!list.length){
+    listEl.innerHTML='<div style="font-size:.75rem;color:var(--text3)">No IPs added yet.</div>';
+  } else {
+    listEl.innerHTML=list.map(ip=>`<div style="display:flex;align-items:center;gap:.5rem;padding:.3rem .5rem;background:var(--bg3);border-radius:6px;margin-bottom:.3rem">
+      <span style="font-family:\'DM Mono\',monospace;font-size:.8rem;flex:1">${ip}</span>
+      <button class="btn b-danger b-sm" onclick="ipRemove('${ip}')">Remove</button>
+    </div>`).join('');
+  }
+}
+function ipToggle(){
+  const on = document.getElementById('ip-enabled').checked?'true':'false';
+  DB.settings = DB.settings || {};
+  DB.settings.ip_on = on;
+  saveDB();
+  localStorage.setItem(IP_ON_KEY,on);
+  gsPost('saveSetting',{key:'ip_on',value:on});
+  ipRender();
+  notify(ipIsOn()?'IP Restriction ENABLED ✓ (ab sab devices pe apply hogi)':'IP Restriction disabled');
+}
+function ipAdd(){
+  const val=document.getElementById('ip-input').value.trim();
+  if(!val){notify('Enter an IP address','err');return;}
+  const list=ipGetList();
+  if(list.includes(val)){notify('IP already in list');return;}
+  list.push(val);ipSaveList(list);
+  document.getElementById('ip-input').value='';
+  ipRender();notify('IP added: '+val+' ✓');
+}
+async function ipAddCurrent(){
+  const ip=await ipFetch();
+  if(!ip){notify('Could not detect IP','err');return;}
+  const list=ipGetList();
+  if(list.includes(ip)){notify('Your IP already in list');return;}
+  list.push(ip);ipSaveList(list);
+  ipRender();notify('Your IP added: '+ip+' ✓');
+}
+function ipRemove(ip){
+  ipSaveList(ipGetList().filter(x=>x!==ip));
+  ipRender();notify('IP removed');
+}
+async function ipShowSettings(){
+  const card=document.getElementById('ip-card');
+  if(card)card.style.display='';
+  ipRender();
+  const ip=await ipFetch();
+  const el=document.getElementById('ip-current');
+  if(el)el.textContent=ip||'Could not detect';
+}
+
+
+async function doLogin(){
+  const uid=document.getElementById('login-sel').value;
+  const pass=document.getElementById('login-pass').value.trim();
+  const err=document.getElementById('login-err');
+  err.style.display='none';
+  if(!uid){err.textContent='Please select your profile.';err.style.display='block';return;}
+  if(!pass){err.textContent='Please enter your password.';err.style.display='block';return;}
+
+  // Step 1: Sheet se fresh members load karo PEHLE
+  showLoading('Connecting to Google Sheets...');
+  let sheetPassword = '';
+  try {
+    const r = await fetch(HARDCODED_GS_URL+'?action=getAll');
+    const d = await r.json();
+    if(!d.error && d.members && d.members.length){
+      d.members.forEach(sm=>{
+        const local=DB.members.find(x=>String(x.id)===String(sm.id));
+        if(local){
+          local.name  = sm.name  || local.name;
+          local.role  = sm.role  || local.role;
+          local.color = sm.color || local.color;
+          // Always update password from Sheet (even if empty)
+          local.sheetPassword = String(sm.password||'').trim();
+        } else {
+          DB.members.push({
+            ...sm,
+            password: String(sm.password||'').trim()||'1234',
+            sheetPassword: String(sm.password||'').trim()
+          });
+        }
+      });
+      saveDB();
+    }
+    if(!d.error && d.settings) applySettingsFromSheet(d.settings); // fresh IP restriction settings, sab devices ke liye same
+  } catch(e){ console.warn('Pre-login fetch failed:', e.message); }
+  hideLoading();
+
+  // Step 2: Member dhundo
+  const m = DB.members.find(x=>String(x.id)===String(uid));
+  if(!m){
+    err.textContent='Profile not found. Please try again.';
+    err.style.display='block';
+    return;
+  }
+
+  // Step 3: Password check
+  // Priority: Sheet password > local password
+  // Agar Sheet mein password hai → Sheet password se match karo
+  // Agar Sheet mein empty hai → local password se match karo
+  // Agar dono empty hain → allow karo (new device first login)
+  const effectivePassword = (m.sheetPassword && m.sheetPassword!=='')
+    ? m.sheetPassword
+    : (m.password && m.password!==''? m.password : '');
+
+  if(effectivePassword !== '' && pass !== effectivePassword){
+    err.textContent='Incorrect password. Please try again.';
+    err.style.display='block';
+    return;
+  }
+
+  // Agar Sheet mein password nahi tha to local save karo
+  if(!m.sheetPassword || m.sheetPassword===''){
+    m.password = pass;
+    saveDB();
+    // Aur Sheet mein bhi save karo
+    gsPost('addMember',{id:m.id,name:m.name,role:m.role,isManager:m.isManager,color:m.color,password:pass});
+  }
+
+  CU = m;
+
+  // IP Restriction check (employees only)
+  const ipResult = await ipCheckAccess(m);
+  if(!ipResult.ok){
+    err.textContent='🔒 Access denied. Your IP ('+(ipResult.ip||'unknown')+') is not allowed. Contact your manager.';
+    err.style.display='block';
+    hideLoading();
+    CU = null;
+    return;
+  }
+
+  // Step 4: Poora data load karo
+  showLoading('Loading your data...');
+  await loadAllFromSheet();
+  hideLoading();
+  launchApp();
+}
+function logout(){
+  CU=null;
+  if(_timerInterval){ clearInterval(_timerInterval); _timerInterval=null; }
+  if(window._autoRefreshTimer){ clearInterval(window._autoRefreshTimer); window._autoRefreshTimer=null; }
+  document.getElementById('app').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-pass').value='';
+  document.getElementById('login-sel').value='';
+  document.getElementById('login-err').style.display='none';
+  populateLoginDrop();
+}
+function togglePass(id,btn){
+  const inp=document.getElementById(id);
+  inp.type=inp.type==='password'?'text':'password';
+  btn.textContent=inp.type==='password'?'👁':'🙈';
+}
+
+// ════════════════════════════════════════════
+// LAUNCH
+// ════════════════════════════════════════════
+function launchApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  const col=mColor(CU);
+  const av=document.getElementById('sb-av');
+  av.textContent=CU.name.charAt(0);
+  av.style.background=col+'22';av.style.color=col;
+  document.getElementById('sb-name').textContent=CU.name;
+  document.getElementById('sb-role').textContent=CU.role;
+  if(CU.isManager){
+    // Show manager nav
+    ['mgr-section','snav-dashboard','snav-calendar','snav-weekly','snav-reports','snav-settings'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.display=(id==='mgr-section'?'block':'flex');
+    });
+    // Hide employee-only nav
+    ['emp-section','snav-today','snav-my-logs','snav-my-tasks','snav-my-stats'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.display='none';
+    });
+  } else {
+    // Show employee nav
+    ['emp-section','snav-today','snav-my-logs','snav-my-tasks','snav-my-stats'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.display=(id==='emp-section'?'block':'flex');
+    });
+    // Hide manager-only nav
+    ['mgr-section','snav-dashboard','snav-calendar','snav-weekly','snav-reports','snav-settings'].forEach(id=>{
+      const el=document.getElementById(id);
+      if(el) el.style.display='none';
+    });
+  }
+  startClock();
+  checkStaleAttendance();
+  populateWLDropdowns();
+  showPage(CU.isManager?'dashboard':'today');
+}
+
+// ════════════════════════════════════════════
+// NAVIGATION
+// ════════════════════════════════════════════
+function showPage(page){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.sb-item').forEach(n=>n.classList.remove('active'));
+  const pg=document.getElementById('page-'+page);
+  if(pg) pg.classList.add('active');
+  const nav=document.getElementById('snav-'+page);
+  if(nav) nav.classList.add('active');
+  if(page==='today') { renderToday(); timerInit(); }
+  if(page==='my-logs') renderMyLogs();
+  if(page==='my-tasks') renderMyTasks();
+  if(page==='my-stats') renderMyStats();
+  if(page==='dashboard'){populateWeekSel('dash-week-sel');renderDashboard();}
+  if(page==='calendar') renderCalendar();
+  if(page==='weekly') renderWeekly();
+  if(page==='reports'){populateWeekSel('rep-week-sel');populateMonthSel();_repView='weekly';switchRepView('weekly');}
+  if(page==='settings'){renderSettings();if(CU&&CU.isManager)ipShowSettings();}
+}
+
+// ════════════════════════════════════════════
+// CLOCK
+// ════════════════════════════════════════════
+function startClock(){
+  const tick=()=>{
+    const n=new Date();
+    const el=document.getElementById('live-clock');
+    if(el) el.textContent=n.toLocaleTimeString('en-US',{hour12:false});
+    const ds=n.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+    const ld=document.getElementById('live-date2');if(ld)ld.textContent=ds;
+    const td=document.getElementById('today-date-str');if(td)td.textContent=ds;
+  };
+  tick(); setInterval(tick,1000);
+}
+// ════════════════════════════════════════════
+// STALE ATTENDANCE CHECK
+// Runs on every login — if previous day has
+// clockIn but no clockOut → mark as Incomplete
+// ════════════════════════════════════════════
+function checkStaleAttendance(){
+  if(!CU) return;
+  const today = todayStr();
+  let changed = false;
+  DB.attendance.forEach(rec => {
+    const isOwn = rec.memberId === CU.id;
+    // Manager login pe sab members ka purana "Incomplete" data bhi ek saath fix ho jaye
+    const canFix = isOwn || CU.isManager;
+    const needsFix = rec.clockIn && (!rec.clockOut || rec.clockOut === 'Incomplete');
+    if(canFix && rec.date !== today && needsFix){
+      // Employee bhool gaya clock-out karna → raat 11:59 PM (day-end) par
+      // automatic clock-out kar dete hain taake hours count ho jain,
+      // "Incomplete" wala purana behavior (chahe naya ho ya purana synced data) khatam.
+      const[ih,im]=rec.clockIn.split(':').map(Number);
+      rec.clockOut = '23:59';
+      rec.hours = ((23*60+59)-(ih*60+im))/60;
+      if(rec.hours<0) rec.hours=0; // safety, agar clockIn hi ghalat/future ho
+      rec.autoClockedOut = true; // flag taake reports mein pata chal sake ye auto tha
+      changed = true;
+      autoSaveAttendance(rec);
+    }
+  });
+  if(changed){
+    saveDB();
+    notify('⏰ Bhoole hue clock-outs — automatic 11:59 PM par clock-out ho gaye, hours add ho gaye','ok');
+  }
+}
+
+function clockAction(){
+  if(!CU) return;
+  const today=todayStr();
+  let rec=DB.attendance.find(a=>a.memberId===CU.id&&a.date===today);
+  const now=new Date();
+  const tStr=now.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
+  if(!rec||!rec.clockIn){
+    if(!rec){rec={memberId:CU.id,date:today,clockIn:tStr,clockOut:null,hours:null};DB.attendance.push(rec);}
+    else rec.clockIn=tStr;
+    saveDB();updateClockUI();renderTodayHours();autoSaveAttendance(rec);notify('Clocked in at '+tStr+' ✓');
+  } else if(!rec.clockOut){
+    rec.clockOut=tStr;
+    const[ih,im]=rec.clockIn.split(':').map(Number);
+    const[oh,om]=tStr.split(':').map(Number);
+    rec.hours=((oh*60+om)-(ih*60+im))/60;
+    saveDB();updateClockUI();renderTodayHours();autoSaveAttendance(rec);notify('Clocked out! '+rec.hours.toFixed(1)+' hrs ✓');
+  }
+}
+function updateClockUI(){
+  if(!CU) return;
+  const rec=DB.attendance.find(a=>a.memberId===CU.id&&a.date===todayStr());
+  const btn=document.getElementById('clock-btn');
+  const info=document.getElementById('clock-info');
+  if(!btn) return;
+  if(!rec||!rec.clockIn){
+    btn.textContent='Clock In';btn.className='clock-btn cb-in';btn.disabled=false;
+    info.textContent='Not clocked in today';
+  } else if(!rec.clockOut){
+    btn.textContent='Clock Out';btn.className='clock-btn cb-out';btn.disabled=false;
+    info.textContent='Clocked in at '+rec.clockIn+' — currently working';
+  } else if(rec.clockOut==='Incomplete'){
+    btn.textContent='Clock In';btn.className='clock-btn cb-in';btn.disabled=false;
+    info.innerHTML='<span style="color:var(--red)">⚠️ Yesterday incomplete — no clock-out recorded</span>';
+  } else {
+    btn.textContent='✓ Day Complete';btn.className='clock-btn cb-done';btn.disabled=true;
+    info.textContent='In: '+rec.clockIn+' | Out: '+rec.clockOut+' | '+rec.hours.toFixed(1)+' hrs';
+  }
+}
+function renderTodayHours(){
+  if(!CU) return;
+  const el=document.getElementById('today-hrs-display');
+  if(!el) return;
+  const today=todayStr();
+  const rec=DB.attendance.find(a=>a.memberId===CU.id&&a.date===today);
+  const logs=DB.workLogs.filter(l=>l.memberId===CU.id&&l.date===today);
+  const totalMins=logs.reduce((s,l)=>s+((+l.hrs||0)*60+(+l.mins||0)),0);
+  const wH=Math.floor(totalMins/60),wM=totalMins%60;
+  el.innerHTML=`
+    <div style="margin-bottom:1.25rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:.8rem"><span style="color:var(--text2)">Attendance</span><span>${rec?.clockIn?(rec.clockOut==='Incomplete'?'⚠️ Incomplete':rec.clockOut?rec.hours.toFixed(1)+' hrs':'Active'):'Not clocked in'}</span></div>
+      <div class="pw"><div class="pb ${rec?.hours>=7?'pg':rec?.clockIn?'pa':'pr'}" style="width:${rec?.hours?Math.min(rec.hours/9*100,100):rec?.clockIn?3:0}%"></div></div>
+    </div>
+    <div style="margin-bottom:1.25rem">
+      <div style="display:flex;justify-content:space-between;margin-bottom:4px;font-size:.8rem"><span style="color:var(--text2)">Work Logged</span><span>${wH}h ${wM}m</span></div>
+      <div class="pw"><div class="pb pac" style="width:${Math.min(totalMins/480*100,100)}%"></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+      <div style="background:var(--bg3);border-radius:var(--r-sm);padding:.75rem;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--accent)">${logs.length}</div>
+        <div style="font-size:.68rem;color:var(--text3)">Log Entries</div>
+      </div>
+      <div style="background:var(--bg3);border-radius:var(--r-sm);padding:.75rem;text-align:center">
+        <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:${rec?.clockIn?'var(--green)':'var(--text3)'}">${rec?.clockOut==='Incomplete'?'⚠️':rec?.clockIn?'In':'Out'}</div>
+        <div style="font-size:.68rem;color:var(--text3)">Status</div>
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+// TODAY (EMPLOYEE)
+// ════════════════════════════════════════════
+function populateWLDropdowns(){
+  const ch=document.getElementById('wl-ch');
+  const ty=document.getElementById('wl-type');
+  if(ch) ch.innerHTML='<option value="">Select channel...</option>'+DB.channels.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  if(ty) ty.innerHTML='<option value="">Select type...</option>'+DB.categories.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+function renderToday(){
+  updateClockUI();renderTodayHours();renderTodayLogs();
+}
+function renderTodayLogs(){
+  const logs=DB.workLogs.filter(l=>l.memberId===CU.id&&l.date===todayStr()).slice().reverse();
+  const el=document.getElementById('today-logs-list');if(!el)return;
+  if(!logs.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div>No entries yet. Log your first work above!</div>';return;}
+  el.innerHTML=logs.map(l=>logCard(l,true)).join('');
+}
+function logCard(l,canDel){
+  const t=(+l.hrs||0)>0||(+l.mins||0)>0?`${+l.hrs||0}h ${+l.mins||0}m`:'—';
+  const chCol=chColor(l.channel);
+  return`<div class="log-entry">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <div style="flex:1">
+        <div class="log-task">${l.task||'(No title)'}</div>
+        <div class="log-meta" style="margin-top:.3rem">
+          ${l.channel?`<span class="badge" style="background:${chCol}18;color:${chCol};font-size:.63rem">${l.channel}</span>`:''}
+          ${l.type?`<span class="badge bgp" style="font-size:.63rem">${l.type}</span>`:''}
+          <span style="font-size:.72rem;color:var(--text3)">${l.date}</span>
+        </div>
+        ${l.notes?`<div style="font-size:.77rem;color:var(--text2);margin-top:.3rem">${l.notes}</div>`:''}
+        ${l.proof?`<a style="font-size:.73rem;color:var(--blue);text-decoration:none;display:inline-flex;align-items:center;gap:.3rem;margin-top:.35rem" href="${l.proof}" target="_blank">🔗 View Proof</a>`:''}
+      </div>
+      <div style="text-align:right;flex-shrink:0;margin-left:.75rem">
+        <div style="font-family:'DM Mono',monospace;font-size:.9rem;font-weight:500;color:var(--accent)">${t}</div>
+        ${canDel?`<button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:.7rem;margin-top:4px" onclick="deleteLog('${l.id}')">Delete</button>`:''}
+      </div>
+    </div>
+  </div>`;
+}
+function addWorkLog(){
+  const ch=document.getElementById('wl-ch').value;
+  const type=document.getElementById('wl-type').value;
+  const task=document.getElementById('wl-task').value.trim();
+  const hrs=document.getElementById('wl-hrs').value;
+  const mins=document.getElementById('wl-mins').value;
+  const proof=document.getElementById('wl-proof').value.trim();
+  const notes=document.getElementById('wl-notes').value.trim();
+  if(!task){notify('Please enter a task title','err');return;}
+  const newLog={id:'l'+Date.now(),memberId:CU.id,date:todayStr(),channel:ch,type,task,hrs:+hrs||0,mins:+mins||0,proof,notes};
+  DB.workLogs.push(newLog);
+  saveDB();
+  autoSaveWorkLog(newLog);
+  ['wl-task','wl-proof','wl-notes'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('wl-hrs').value='';document.getElementById('wl-mins').value='';
+  renderTodayLogs();renderTodayHours();notify('Work entry added ✓');
+}
+function deleteLog(id){
+  DB.workLogs=DB.workLogs.filter(l=>l.id!==id);
+  saveDB();renderTodayLogs();renderTodayHours();notify('Entry deleted');
+}
+
+// ════════════════════════════════════════════
+// MY LOGS
+// ════════════════════════════════════════════
+function renderMyLogs(){
+  const logs=DB.workLogs.filter(l=>l.memberId===CU.id).sort((a,b)=>b.date.localeCompare(a.date));
+  const el=document.getElementById('my-logs-content');
+  if(!logs.length){el.innerHTML='<div class="empty"><div class="empty-icon">📋</div>No logs yet.</div>';return;}
+  const byDate={};
+  logs.forEach(l=>{if(!byDate[l.date])byDate[l.date]=[];byDate[l.date].push(l);});
+  el.innerHTML=Object.entries(byDate).map(([date,ls])=>{
+    const total=ls.reduce((s,l)=>s+(+l.hrs||0)*60+(+l.mins||0),0);
+    return`<div class="gap">
+      <div style="display:flex;justify-content:space-between;margin-bottom:.75rem">
+        <div style="font-size:.85rem;font-weight:600">${formatDate(date)}</div>
+        <div style="font-size:.75rem;color:var(--text2)">${ls.length} entries · ${Math.floor(total/60)}h ${total%60}m</div>
+      </div>
+      ${ls.map(l=>logCard(l,l.date===todayStr())).join('')}
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════════════════
+// MY TASKS
+// ════════════════════════════════════════════
+function renderMyTasks(){
+  const week=getCurrentWeekStr();
+  const tasks=DB.tasks.filter(t=>String(t.memberId)===String(CU.id)&&String(t.week)===String(week));
+  const el=document.getElementById('my-tasks-content');
+  if(!tasks.length){el.innerHTML='<div class="empty"><div class="empty-icon">📅</div>No tasks assigned for this week.</div>';return;}
+  el.innerHTML=`<div style="margin-bottom:.75rem;font-size:.8rem;color:var(--text2)">Week: ${weekToRange(week)}</div>`+
+    tasks.map(t=>{
+      const chCol=t.channel?chColor(t.channel):'var(--text3)';
+      return`<div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem;margin-bottom:.75rem">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:.6rem">
+          <div>
+            <div style="font-weight:600;font-size:.88rem;margin-bottom:.2rem">${t.desc||t.title||"(No title)"}</div>
+            ${t.notes?`<div style="font-size:.77rem;color:var(--text2)">${t.notes}</div>`:''}
+          </div>
+          <button class="btn b-ghost b-sm" onclick="toggleTaskDone('${t.id}')">${(+t.done>=1)?'✓ Done':'Mark Done'}</button>
+        </div>
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+          ${t.channel?`<span class="badge" style="background:${chCol}18;color:${chCol};font-size:.63rem">${t.channel}</span>`:''}
+          ${t.target?`<span class="badge bgac">${t.done||0}/${t.target} ${t.unit||''}</span>`:''}
+          ${(+t.done>=1)?'<span class="badge bgg">✓ Completed</span>':'<span class="badge bga">Pending</span>'}
+        </div>
+      </div>`;
+    }).join('');
+}
+function toggleTaskDone(id){
+  const t=DB.tasks.find(x=>x.id===id);if(!t)return;
+  t.done=(+t.done>=1)?0:1;
+  saveDB();autoSaveTask(t);renderMyTasks();notify(t.done?'Task marked complete ✓':'Task marked pending');
+}
+
+// ════════════════════════════════════════════
+// ════════════════════════════════════════════
+// PERSONAL TIMER
+// ════════════════════════════════════════════
+// PERSONAL TIMER — per employee, persisted in localStorage
+// ════════════════════════════════════════════
+let _timerInterval=null;
+
+function _timerKey(){ return 'ytm_timer_'+(CU?CU.id:'guest')+'_'+todayStr(); }
+function _timerLoad(){
+  try{ return JSON.parse(localStorage.getItem(_timerKey()))||{seconds:0,running:false,startedAt:null}; }
+  catch{ return {seconds:0,running:false,startedAt:null}; }
+}
+function _timerSave(state){ localStorage.setItem(_timerKey(), JSON.stringify(state)); }
+
+// On page load restore live seconds if timer was running
+function _timerGetSeconds(){
+  const s=_timerLoad();
+  if(s.running && s.startedAt){
+    const elapsed=Math.floor((Date.now()-s.startedAt)/1000);
+    return s.seconds+elapsed;
+  }
+  return s.seconds;
+}
+
+function timerFmt(s){
+  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
+  return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+
+function timerUpdateUI(){
+  const disp=document.getElementById('timer-display');
+  const label=document.getElementById('timer-status-label');
+  const btnStart=document.getElementById('timer-start-btn');
+  const btnStop=document.getElementById('timer-stop-btn');
+  const btnRestart=document.getElementById('timer-restart-btn');
+  const btnReset=document.getElementById('timer-reset-btn');
+  if(!disp) return;
+  const state=_timerLoad();
+  const secs=_timerGetSeconds();
+  disp.textContent=timerFmt(secs);
+  if(state.running){
+    label.textContent='Running…';label.style.color='var(--green)';
+    disp.style.color='var(--green)';
+    btnStart.style.display='none';
+    btnStop.style.display='';btnRestart.style.display='none';btnReset.style.display='';
+  } else if(secs>0){
+    label.textContent='Paused — '+timerFmt(secs);label.style.color='var(--amber)';
+    disp.style.color='var(--amber)';
+    btnStart.style.display='none';
+    btnStop.style.display='none';btnRestart.style.display='';btnReset.style.display='';
+  } else {
+    label.textContent='Not started';label.style.color='var(--text3)';
+    disp.style.color='var(--accent)';
+    btnStart.style.display='';
+    btnStop.style.display='none';btnRestart.style.display='none';btnReset.style.display='none';
+  }
+}
+
+function timerStart(){
+  const state=_timerLoad();
+  if(state.running) return;
+  // Save current accumulated seconds + mark running with startedAt
+  _timerSave({seconds:_timerGetSeconds(), running:true, startedAt:Date.now()});
+  if(_timerInterval) clearInterval(_timerInterval);
+  _timerInterval=setInterval(()=>{ timerUpdateUI(); },1000);
+  timerUpdateUI();
+}
+function timerStop(){
+  const state=_timerLoad();
+  if(!state.running) return;
+  _timerSave({seconds:_timerGetSeconds(), running:false, startedAt:null});
+  clearInterval(_timerInterval);_timerInterval=null;
+  timerUpdateUI();
+}
+function timerRestart(){ timerStart(); }
+function timerReset(){
+  clearInterval(_timerInterval);_timerInterval=null;
+  _timerSave({seconds:0,running:false,startedAt:null});
+  timerUpdateUI();
+}
+function timerInit(){
+  // If timer was running when page was closed, resume the live interval
+  clearInterval(_timerInterval);_timerInterval=null;
+  const state=_timerLoad();
+  if(state.running){
+    _timerInterval=setInterval(()=>{ timerUpdateUI(); },1000);
+  }
+  timerUpdateUI();
+}
+
+
+// MY STATS — IMPROVED VERSION
+// ════════════════════════════════════════════
+function renderMyStats(){
+  const el=document.getElementById('my-stats-content');
+  const allLogs=DB.workLogs.filter(l=>l.memberId===CU.id);
+  const allAtts=DB.attendance.filter(a=>a.memberId===CU.id);
+  const totalMins=allLogs.reduce((s,l)=>s+(+l.hrs||0)*60+(+l.mins||0),0);
+  const totalHrs=allAtts.filter(a=>a.hours).reduce((s,a)=>s+a.hours,0);
+  const days=[...new Set(allLogs.map(l=>l.date))].length;
+
+  // This week stats
+  const thisWeek=getCurrentWeekStr();
+  const wStart=weekStart(thisWeek);
+  const weekLogs=allLogs.filter(l=>l.date>=wStart);
+  const weekMins=weekLogs.reduce((s,l)=>s+(+l.hrs||0)*60+(+l.mins||0),0);
+  const weekAtts=allAtts.filter(a=>{
+    const d=fixSheetDate(a.date)||a.date;
+    return d>=wStart && (parseFloat(a.hours)||0)>0;
+  });
+  const weekClockHrs=weekAtts.reduce((s,a)=>s+a.hours,0);
+  const weekTasks=DB.tasks.filter(t=>t.memberId===CU.id&&t.week===thisWeek);
+  const weekTasksDone=weekTasks.filter(t=>(+t.done)>=1).length;
+
+  // All time by channel and type
+  const byCh={},byType={};
+  allLogs.forEach(l=>{
+    if(l.channel){if(!byCh[l.channel])byCh[l.channel]=0;byCh[l.channel]+=(+l.hrs||0)*60+(+l.mins||0);}
+    if(l.type){if(!byType[l.type])byType[l.type]=0;byType[l.type]+=(+l.hrs||0)*60+(+l.mins||0);}
+  });
+
+  // Last 7 days activity
+  const last7=[];
+  for(let i=6;i>=0;i--){
+    const d=new Date();d.setDate(d.getDate()-i);
+    const ds=d.toISOString().split('T')[0];
+    const dayLogs=allLogs.filter(l=>l.date===ds);
+    const dayMins=dayLogs.reduce((s,l)=>s+(+l.hrs||0)*60+(+l.mins||0),0);
+    last7.push({date:ds,label:d.toLocaleDateString('en-US',{weekday:'short'}),mins:dayMins,entries:dayLogs.length});
+  }
+  const maxMins=Math.max(...last7.map(d=>d.mins),1);
+
+  const col=mColor(CU);
+
+  el.innerHTML=`
+    <!-- ALL TIME STATS -->
+    <div class="g4 gap">
+      <div class="stat s-green"><div class="s-label">Total Log Entries</div><div class="s-val">${allLogs.length}</div><div class="s-meta">All time</div></div>
+      <div class="stat s-blue"><div class="s-label">Work Days Logged</div><div class="s-val">${days}</div><div class="s-meta">Unique days</div></div>
+      <div class="stat s-amber"><div class="s-label">Total Work Logged</div><div class="s-val">${Math.floor(totalMins/60)}<span style="font-size:1rem;font-weight:400">h</span></div><div class="s-meta">${totalMins%60}m extra</div></div>
+      <div class="stat s-red"><div class="s-label">Attendance Hours</div><div class="s-val">${Math.round(totalHrs)}<span style="font-size:1rem;font-weight:400">h</span></div><div class="s-meta">Clock-in/out total</div></div>
+    </div>
+
+    <!-- THIS WEEK -->
+    <div class="week-band gap">
+      <div class="week-band-title">📅 This Week — ${weekToRange(thisWeek)}</div>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem">
+        <div style="text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--accent)">${weekLogs.length}</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:2px">Log Entries</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--green)">${Math.floor(weekMins/60)}h ${weekMins%60}m</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:2px">Work Logged</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:var(--blue)">${weekClockHrs.toFixed(1)}h</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:2px">Clock Hrs</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:'Syne',sans-serif;font-size:1.5rem;font-weight:800;color:${weekTasks.length?'var(--purple)':'var(--text3)'}">${weekTasksDone}/${weekTasks.length}</div>
+          <div style="font-size:.68rem;color:var(--text3);margin-top:2px">Tasks Done</div>
+        </div>
+      </div>
+      ${weekTasks.length?`<div style="margin-top:1rem"><div class="pw" style="height:6px"><div class="pb pp" style="width:${weekTasks.length?Math.round(weekTasksDone/weekTasks.length*100):0}%"></div></div><div style="font-size:.68rem;color:var(--text3);margin-top:4px">${weekTasks.length?Math.round(weekTasksDone/weekTasks.length*100):0}% tasks complete</div></div>`:''}
+    </div>
+
+    <!-- LAST 7 DAYS ACTIVITY -->
+    <div class="card gap">
+      <div class="ct">Last 7 Days Activity</div>
+      <div style="display:flex;align-items:flex-end;gap:.4rem;height:80px;padding-bottom:.25rem">
+        ${last7.map(d=>{
+          const h=d.mins?Math.max(Math.round(d.mins/maxMins*100),4):0;
+          const isToday=d.date===todayStr();
+          return`<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+            <div style="font-size:.58rem;color:var(--text3)">${d.entries||''}</div>
+            <div style="width:100%;background:${isToday?col:col+'55'};border-radius:3px;height:${h}%;min-height:${d.mins?2:0}px;transition:all .4s"></div>
+            <div style="font-size:.62rem;color:${isToday?'var(--accent)':'var(--text3)'};font-weight:${isToday?700:400}">${d.label}</div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+    <!-- WORK BY CHANNEL & TYPE -->
+    <div class="g2">
+      <div class="card"><div class="ct">Work by Channel</div>
+        ${Object.entries(byCh).sort((a,b)=>b[1]-a[1]).map(([ch,mins])=>{
+          const c=chColor(ch);
+          return`<div style="margin-bottom:.85rem">
+            <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:4px"><span style="font-weight:500">${ch}</span><span style="color:var(--text2);font-family:'DM Mono',monospace">${Math.floor(mins/60)}h ${mins%60}m</span></div>
+            <div class="pw"><div class="pb" style="width:${totalMins?Math.round(mins/totalMins*100):0}%;background:${c}"></div></div>
+          </div>`;
+        }).join('')||'<div class="empty" style="padding:1rem;text-align:left">No data yet</div>'}
+      </div>
+      <div class="card"><div class="ct">Work by Type</div>
+        ${Object.entries(byType).sort((a,b)=>b[1]-a[1]).map(([type,mins])=>`
+          <div style="margin-bottom:.85rem">
+            <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:4px"><span style="font-weight:500">${type}</span><span style="color:var(--text2);font-family:'DM Mono',monospace">${Math.floor(mins/60)}h ${mins%60}m</span></div>
+            <div class="pw"><div class="pb pg" style="width:${totalMins?Math.round(mins/totalMins*100):0}%"></div></div>
+          </div>`).join('')||'<div class="empty" style="padding:1rem;text-align:left">No data yet</div>'}
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+// MANAGER DASHBOARD
+// ════════════════════════════════════════════
+async function manualRefreshDashboard(){
+  const btn=document.getElementById('dash-refresh-btn');
+  if(btn){ btn.textContent='⟳ Loading...'; btn.disabled=true; }
+  await loadAllFromSheet();
+  renderDashboard();
+  if(btn){ btn.textContent='⟳ Refresh'; btn.disabled=false; }
+  notify('Dashboard refreshed ✓');
+}
+
+function renderDashboard(){
+  const today=todayStr();
+  console.log('Dashboard today:', today, '| Attendance dates in DB:', [...new Set(DB.attendance.map(a=>a.date))]);
+  console.log('Today att records:', DB.attendance.filter(a=>a.date===today));
+  const nonMgr=DB.members.filter(m=>!m.isManager);
+  document.getElementById('ds-members').textContent=nonMgr.length;
+  document.getElementById('ds-entries').textContent=DB.workLogs.filter(l=>l.date===today).length;
+  const present=DB.attendance.filter(a=>a.date===today && a.clockIn).length;
+  document.getElementById('ds-present').textContent=present;
+  document.getElementById('ds-absent').textContent=Math.max(0,nonMgr.length-present);
+
+  const selWeek=document.getElementById('dash-week-sel')?.value||getCurrentWeekStr();
+  const wStart=weekStart(selWeek);
+
+  const grid=document.getElementById('team-cards-grid');
+  if(!nonMgr.length){grid.innerHTML='<div class="empty"><div class="empty-icon">👥</div>No team members. Add them in Settings.</div>';return;}
+  grid.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:1rem;margin-bottom:1.5rem">` +
+    nonMgr.map(m=>{
+      const col=mColor(m);
+      const logs=DB.workLogs.filter(l=>l.memberId===m.id&&l.date>=wStart);
+      const totalMins=logs.reduce((s,l)=>s+(+l.hrs||0)*60+(+l.mins||0),0);
+      const att=DB.attendance.find(a=>String(a.memberId)===String(m.id)&&a.date===today)||null;
+      const attStr=att?.clockIn?(att.clockOut?'Done':'Active'):'Absent';
+      const attBadge=att?.clockIn?(att.clockOut?'bgy':'bgg'):'bgr';
+      const weekHrs=DB.attendance.filter(a=>a.memberId===m.id&&a.date>=wStart).reduce((s,a)=>s+(a.hours||0),0);
+      return`<div class="mc" onclick="openDetailModal('${m.id}')">
+        <div class="mc-top">
+          <div class="mc-av" style="background:${col}22;color:${col}">${m.name.charAt(0)}</div>
+          <div><div class="mc-name">${m.name}</div><div class="mc-role">${m.role}</div></div>
+          <span class="badge ${attBadge}" style="margin-left:auto;font-size:.65rem">${attStr}</span>
+        </div>
+        <div class="mc-stats" style="grid-template-columns:repeat(3,1fr)">
+          <div class="mc-s"><div class="mc-sv" style="color:var(--accent)">${logs.length}</div><div class="mc-sl">Entries</div></div>
+          <div class="mc-s"><div class="mc-sv" style="color:var(--green)">${Math.floor(totalMins/60)}h ${totalMins%60}m</div><div class="mc-sl">Work Logged</div></div>
+          <div class="mc-s"><div class="mc-sv" style="color:var(--blue)">${weekHrs.toFixed(1)}h</div><div class="mc-sl">Clock Hrs</div></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:.5rem;padding-top:.5rem;border-top:1px solid var(--border)">
+          <span style="font-size:.72rem;color:var(--text3)">🕐 In: <b style="color:var(--text)">${att?.clockIn||'—'}</b> &nbsp; Out: <b style="color:var(--text)">${att?.clockOut&&att.clockOut!=='Incomplete'?att.clockOut:'—'}</b></span>
+          ${att?.clockOut==='Incomplete'?'<span class="badge bga" style="font-size:.6rem">⚠️ Incomplete</span>':''}
+        </div>
+        <div style="font-size:.68rem;color:var(--accent);text-align:right;margin-top:.5rem;opacity:.7">Click for full details →</div>
+      </div>`;
+    }).join('')+'</div>';
+
+  const rows=nonMgr.map(m=>{
+    const att=DB.attendance.find(a=>String(a.memberId)===String(m.id)&&a.date===today)||null;
+    const col=mColor(m);
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:.6rem"><div style="width:26px;height:26px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700">${m.name.charAt(0)}</div>${m.name}</div></td>
+      <td style="color:var(--text2);font-size:.78rem">${m.role}</td>
+      <td>${att?.clockIn||'—'}</td>
+      <td>${att?.clockOut||'—'}</td>
+      <td>${att?.clockOut==='Incomplete'?'<span class="badge bga">⚠️ Incomplete</span>':att?.hours?att.hours.toFixed(1)+' hrs':att?.clockIn?'<span class="badge bgg">Active</span>':'—'}</td>
+      <td>${att?.clockIn?(att.clockOut?'<span class="badge bgy">Done</span>':'<span class="badge bgg">Working</span>'):'<span class="badge bgr">Absent</span>'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('team-att-today').innerHTML=`<div class="tbl-wrap"><table><thead><tr><th>Member</th><th>Role</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+}
+
+// ════════════════════════════════════════════
+// MEMBER DETAIL MODAL
+// ════════════════════════════════════════════
+function openDetailModal(memberId){
+  const m=DB.members.find(x=>x.id===memberId);if(!m)return;
+  const col=mColor(m);
+  // Sanitize before display — fix any Sheet date/time issues
+  const logs=DB.workLogs.filter(l=>l.memberId===m.id).map(l=>({
+    ...l,
+    date: fixSheetDate(l.date)||l.date||'',
+    hrs: +l.hrs||0, mins: +l.mins||0
+  })).filter(l=>l.date && !l.date.startsWith('1899')).sort((a,b)=>b.date.localeCompare(a.date));
+  const atts=DB.attendance.filter(a=>a.memberId===m.id).map(a=>({
+    ...a,
+    date:     fixSheetDate(a.date)||a.date||'',
+    clockIn:  fixSheetTime(a.clockIn),
+    clockOut: fixSheetTime(a.clockOut),
+    hours:    parseFloat(a.hours)||0
+  })).filter(a=>a.date && !a.date.startsWith('1899')).sort((a,b)=>b.date.localeCompare(a.date));
+  const totalMins=logs.reduce((s,l)=>s+(+l.hrs||0)*60+(+l.mins||0),0);
+  const totalHrs=atts.filter(a=>a.hours).reduce((s,a)=>s+a.hours,0);
+  document.getElementById('detail-title').textContent=m.name+' — Full Report';
+  const byDate={};
+  logs.forEach(l=>{if(!byDate[l.date])byDate[l.date]=[];byDate[l.date].push(l);});
+  document.getElementById('detail-content').innerHTML=`
+    <div class="dm-hd">
+      <div style="width:52px;height:52px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:1.2rem;font-weight:700;font-family:'Syne',sans-serif;flex-shrink:0">${m.name.charAt(0)}</div>
+      <div style="flex:1"><div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700">${m.name}</div><div style="font-size:.8rem;color:var(--text2)">${m.role}</div></div>
+      <div style="display:grid;grid-template-columns:repeat(3,80px);gap:.75rem;text-align:center">
+        <div><div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--accent)">${logs.length}</div><div style="font-size:.63rem;color:var(--text3)">Entries</div></div>
+        <div><div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--green)">${Math.floor(totalMins/60)}h</div><div style="font-size:.63rem;color:var(--text3)">Logged</div></div>
+        <div><div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--blue)">${totalHrs.toFixed(0)}h</div><div style="font-size:.63rem;color:var(--text3)">Clock Hrs</div></div>
+      </div>
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div class="dm-sec-title">Work Logs</div>
+      ${!Object.keys(byDate).length?'<div class="empty" style="padding:1.5rem">No logs recorded</div>':
+        Object.entries(byDate).map(([date,ls])=>{
+          const dayMins=ls.reduce((s,l)=>s+(+l.hrs||0)*60+(+l.mins||0),0);
+          const att=atts.find(a=>a.date===date);
+          return`<div style="margin-bottom:1rem">
+            <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:.4rem">${formatDate(date)} · ${Math.floor(dayMins/60)}h ${dayMins%60}m · Clock: ${att?.clockIn||'—'} → ${att?.clockOut||'—'}</div>
+            ${ls.map(l=>`<div class="day-entry">
+              <div>
+                <div style="font-weight:500;font-size:.8rem">${l.task}</div>
+                <div style="font-size:.68rem;color:var(--text3);margin-top:2px">${[l.channel,l.type,l.notes].filter(Boolean).join(' · ')}</div>
+                ${l.proof?`<a href="${l.proof}" target="_blank" style="font-size:.68rem;color:var(--blue);text-decoration:none">🔗 Proof</a>`:''}
+              </div>
+              <div style="font-family:'DM Mono',monospace;font-size:.82rem;color:var(--accent);flex-shrink:0">${+l.hrs||0}h ${+l.mins||0}m</div>
+            </div>`).join('')}
+          </div>`;
+        }).join('')}
+    </div>
+    <div style="margin-bottom:1.5rem">
+      <div class="dm-sec-title">Attendance History</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Date</th><th>Clock In</th><th>Clock Out</th><th>Hours</th><th>Status</th></tr></thead>
+        <tbody>${atts.slice(0,20).map(a=>`<tr>
+          <td style="font-size:.78rem">${formatDate(a.date)}</td>
+          <td>${a.clockIn||'—'}</td><td>${a.clockOut||'—'}</td>
+          <td>${a.clockOut==='Incomplete'?'⚠️ Incomplete':a.hours?a.hours.toFixed(1)+' hrs':a.clockIn?'Active':'—'}</td>
+          <td>${a.clockIn?(a.clockOut&&a.clockOut!=='Incomplete'?'<span class="badge bgy">Done</span>':(a.date===todayStr()?'<span class="badge bgg">Working</span>':'<span class="badge bga">⚠️ Incomplete</span>')):'<span class="badge bgr">Absent</span>'}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>
+    </div>
+    <div style="padding-top:.75rem;border-top:1px solid var(--border);display:flex;gap:.75rem">
+      <button class="btn b-ghost b-sm" onclick="openPasswdModal('${m.id}')">🔑 Change Password</button>
+    </div>`;
+  document.getElementById('modal-detail').classList.add('open');
+}
+
+// ════════════════════════════════════════════
+// CONTENT CALENDAR
+// ════════════════════════════════════════════
+function renderCalendar(){
+  renderChannelCards();
+  const label=weekToRange(CAL_WEEK);
+  document.getElementById('cal-week-label').textContent=label;
+  const grid=document.getElementById('cal-grid');
+  const videos=DB.calVideos.filter(v=>v.week===CAL_WEEK);
+  const channels=DB.channels;
+
+  // Weekly summary stats
+  const total=videos.length;
+  const uploaded=videos.filter(v=>v.status==='Uploaded').length;
+  const missed=videos.filter(v=>v.status==='Missed').length;
+  const inProd=videos.filter(v=>v.status==='In Production').length;
+  const pending=videos.filter(v=>v.status==='Planned'||v.status==='Ready').length;
+  const summaryEl=document.getElementById('cal-summary');
+  summaryEl.innerHTML=`
+    <div class="mstat"><div class="mstat-val" style="color:var(--text)">${total}</div><div class="mstat-label">Total Videos</div></div>
+    <div class="mstat"><div class="mstat-val" style="color:var(--purple)">${uploaded}</div><div class="mstat-label">Uploaded ✓</div></div>
+    <div class="mstat"><div class="mstat-val" style="color:var(--red)">${missed}</div><div class="mstat-label">Missed ✗</div></div>
+    <div class="mstat"><div class="mstat-val" style="color:var(--amber)">${pending}</div><div class="mstat-label">Pending</div></div>
+    <div class="mstat"><div class="mstat-val" style="color:var(--blue)">${inProd}</div><div class="mstat-label">In Production</div></div>
+  `;
+
+  if(!channels.length){grid.innerHTML='<div class="empty"><div class="empty-icon">📺</div>No channels added. Add channels in Settings first.</div>';return;}
+
+  const colW=`160px repeat(${DAYS.length}, minmax(130px,1fr))`;
+  const minW=`${160 + DAYS.length*130}px`;
+  let html=`<div style="min-width:${minW}">`;
+  html+=`<div style="display:grid;grid-template-columns:${colW};gap:4px;margin-bottom:.5rem">
+    <div style="font-size:.65rem;color:var(--text3);padding:.25rem .5rem">CHANNEL</div>
+    ${DAYS.map(d=>`<div style="font-size:.65rem;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;padding:.25rem .5rem;text-align:center">${d}</div>`).join('')}
+  </div>`;
+
+  channels.forEach(ch=>{
+    html+=`<div style="display:grid;grid-template-columns:${colW};gap:4px;border-bottom:1px solid var(--border);padding:.4rem 0">`;
+    html+=`<div style="display:flex;align-items:flex-start;gap:.4rem;padding:.25rem .5rem;padding-top:.4rem"><span style="width:7px;height:7px;border-radius:50%;background:${ch.color};display:inline-block;flex-shrink:0;margin-top:4px"></span><span style="font-size:.78rem;font-weight:600">${ch.name}</span></div>`;
+    DAYS.forEach(day=>{
+      const dayVids=videos.filter(v=>v.channel===ch.name&&v.day===day);
+      html+=`<div style="padding:.15rem .25rem;display:flex;flex-direction:column;gap:.3rem;min-height:36px">`;
+      dayVids.forEach(v=>{
+        const sc=STATUS_COLORS[v.status]||'#55556a';
+        // Quick status buttons
+        const qBtns=STATUS_ORDER.map(s=>{
+          const bc=STATUS_COLORS[s];
+          return`<button class="qsb ${v.status===s?'qsb-active':''}" style="background:${bc}22;color:${bc}" onclick="quickStatusChange('${v.id}','${s}',event)" title="Mark: ${s}">${s==='In Production'?'Prod':s}</button>`;
+        }).join('');
+        html+=`<div class="cal-video" style="border-left-color:${sc}">
+          <div class="cal-video-top" onclick="editCalVideo('${v.id}')" title="Edit video details">
+            <div class="cal-video-dot" style="background:${sc}"></div>
+            <div class="cal-video-title">${v.title}</div>
+            ${v.time?`<div style="font-size:.6rem;color:var(--text3);flex-shrink:0">${v.time}</div>`:''}
+          </div>
+          <div class="qsb-row">${qBtns}</div>
+        </div>`;
+      });
+      html+=`<button class="cal-add-btn" onclick="quickAddVideo('${ch.name}','${day}')">+</button>`;
+      html+=`</div>`;
+    });
+    html+=`</div>`;
+  });
+  html+=`</div>`;
+  grid.innerHTML=html;
+}
+
+function renderChannelCards(){
+  const el=document.getElementById('channel-cards-grid');
+  if(!el) return;
+  const channels=DB.channels;
+  if(!channels||!channels.length){el.innerHTML='';return;}
+
+  el.innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem">` +
+    channels.map(ch=>{
+      const vids=DB.calVideos.filter(v=>v.channel===ch.name);
+      const thisWeek=DB.calVideos.filter(v=>v.channel===ch.name&&v.week===CAL_WEEK);
+      const uploaded=thisWeek.filter(v=>v.status==='Uploaded').length;
+      const missed=thisWeek.filter(v=>v.status==='Missed').length;
+      const inProd=thisWeek.filter(v=>v.status==='In Production').length;
+      const planned=thisWeek.filter(v=>v.status==='Planned').length;
+      const total=thisWeek.length;
+      const uploadPct=total?Math.round(uploaded/total*100):0;
+      return `<div onclick="openChannelDetail('${ch.name}')" style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:1.2rem;cursor:pointer;transition:all .2s;border-top:3px solid ${ch.color}" onmouseover="this.style.borderColor='${ch.color}';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.borderTopColor='${ch.color}';this.style.transform='none'">
+        <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:1rem">
+          <span style="width:10px;height:10px;border-radius:50%;background:${ch.color};display:inline-block;flex-shrink:0"></span>
+          <span style="font-family:'Syne',sans-serif;font-size:.95rem;font-weight:700">${ch.name}</span>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:.85rem">
+          <div style="text-align:center;background:var(--bg3);border-radius:6px;padding:.4rem">
+            <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--text)">${total}</div>
+            <div style="font-size:.6rem;color:var(--text3)">This Week</div>
+          </div>
+          <div style="text-align:center;background:var(--bg3);border-radius:6px;padding:.4rem">
+            <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--purple)">${uploaded}</div>
+            <div style="font-size:.6rem;color:var(--text3)">Uploaded</div>
+          </div>
+          <div style="text-align:center;background:var(--bg3);border-radius:6px;padding:.4rem">
+            <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--red)">${missed}</div>
+            <div style="font-size:.6rem;color:var(--text3)">Missed</div>
+          </div>
+          <div style="text-align:center;background:var(--bg3);border-radius:6px;padding:.4rem">
+            <div style="font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--blue)">${inProd}</div>
+            <div style="font-size:.6rem;color:var(--text3)">In Prod</div>
+          </div>
+        </div>
+        <div style="font-size:.65rem;color:var(--text3);margin-bottom:4px">Upload rate this week</div>
+        <div style="background:var(--bg4);border-radius:3px;height:5px;overflow:hidden">
+          <div style="height:100%;width:${uploadPct}%;background:${ch.color};border-radius:3px;transition:width .5s"></div>
+        </div>
+        <div style="font-size:.65rem;color:var(--text2);margin-top:3px;text-align:right">${uploadPct}%</div>
+        <div style="font-size:.65rem;color:var(--text3);margin-top:.5rem">All time: ${vids.length} scheduled</div>
+        <div style="font-size:.63rem;color:var(--accent);margin-top:.4rem">Click for details →</div>
+      </div>`;
+    }).join('')+`</div>`;
+}
+
+function openChannelDetail(chName){
+  const ch=DB.channels.find(c=>c.name===chName);
+  if(!ch) return;
+  const allVids=DB.calVideos.filter(v=>v.channel===chName);
+  const thisWeekVids=allVids.filter(v=>v.week===CAL_WEEK);
+
+  // Group all videos by week
+  const byWeek={};
+  allVids.forEach(v=>{
+    if(!byWeek[v.week]) byWeek[v.week]=[];
+    byWeek[v.week].push(v);
+  });
+  const weeksSorted=Object.keys(byWeek).sort().reverse();
+
+  // Stats
+  const uploaded=allVids.filter(v=>v.status==='Uploaded').length;
+  const missed=allVids.filter(v=>v.status==='Missed').length;
+  const inProd=allVids.filter(v=>v.status==='In Production').length;
+  const planned=allVids.filter(v=>v.status==='Planned'||v.status==='Ready').length;
+
+  document.getElementById('ch-detail-title').textContent=chName+' — Channel Report';
+  document.getElementById('ch-detail-content').innerHTML=`
+    <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:1.25rem;padding:.75rem;background:var(--bg3);border-radius:var(--r)">
+      <span style="width:14px;height:14px;border-radius:50%;background:${ch.color};display:inline-block;flex-shrink:0"></span>
+      <span style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700">${ch.name}</span>
+      <span style="font-size:.75rem;color:var(--text3);margin-left:auto">${allVids.length} total videos scheduled</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1.25rem">
+      <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:.6rem"><div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--purple)">${uploaded}</div><div style="font-size:.62rem;color:var(--text3)">Uploaded</div></div>
+      <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:.6rem"><div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--red)">${missed}</div><div style="font-size:.62rem;color:var(--text3)">Missed</div></div>
+      <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:.6rem"><div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--blue)">${inProd}</div><div style="font-size:.62rem;color:var(--text3)">In Prod</div></div>
+      <div style="text-align:center;background:var(--bg3);border-radius:8px;padding:.6rem"><div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--amber)">${planned}</div><div style="font-size:.62rem;color:var(--text3)">Pending</div></div>
+    </div>
+    <div style="font-size:.7rem;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.75rem">This Week — ${weekToRange(CAL_WEEK)}</div>
+    ${thisWeekVids.length?`<div style="margin-bottom:1.25rem">`+thisWeekVids.map(v=>{
+      const sc=STATUS_COLORS[v.status]||'#55556a';
+      return`<div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border:1px solid var(--border);border-left:3px solid ${sc};border-radius:var(--r-sm);margin-bottom:.4rem;background:var(--bg3)">
+        <span style="font-size:.8rem;flex:1;font-weight:500">${v.title}</span>
+        <span style="font-size:.65rem;color:var(--text3)">${v.day}${v.time?' · '+v.time:''}</span>
+        <span style="font-size:.65rem;padding:.15rem .4rem;border-radius:4px;background:${sc}22;color:${sc};font-weight:600">${v.status}</span>
+      </div>`;
+    }).join('')+`</div>`:'<div style="color:var(--text3);font-size:.82rem;padding:.5rem 0;margin-bottom:1rem">No videos this week</div>'}
+    <div style="font-size:.7rem;font-weight:600;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.75rem">All Scheduled Videos</div>
+    <div style="max-height:260px;overflow-y:auto">
+    ${weeksSorted.map(wk=>byWeek[wk].map(v=>{
+      const sc=STATUS_COLORS[v.status]||'#55556a';
+      return`<div style="display:flex;align-items:center;gap:.6rem;padding:.45rem .65rem;border-bottom:1px solid var(--border);margin-bottom:2px">
+        <span style="width:7px;height:7px;border-radius:50%;background:${sc};display:inline-block;flex-shrink:0"></span>
+        <span style="font-size:.78rem;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title}</span>
+        <span style="font-size:.62rem;color:var(--text3);white-space:nowrap">${weekToRange(wk)} · ${v.day}</span>
+        <span style="font-size:.62rem;padding:.1rem .35rem;border-radius:4px;background:${sc}22;color:${sc}">${v.status}</span>
+      </div>`;
+    }).join('')).join('')||'<div style="color:var(--text3);font-size:.82rem">No videos scheduled yet</div>'}
+    </div>
+  `;
+  document.getElementById('modal-channel-detail').classList.add('open');
+}
+
+
+function quickStatusChange(id, status, event){
+  event.stopPropagation();
+  const v=DB.calVideos.find(x=>x.id===id);if(!v)return;
+  v.status=status;
+  saveDB();
+  autoSaveVideo(v);
+  renderCalendar();
+  notify('Status: '+status+' ✓');
+}
+
+function calPrevWeek(){
+  const d=new Date(weekStart(CAL_WEEK)+'T12:00:00');
+  d.setDate(d.getDate()-3); // -3 to safely land in previous week
+  CAL_WEEK=getWeekStrOf(d);renderCalendar();
+}
+function calNextWeek(){
+  const d=new Date(weekStart(CAL_WEEK)+'T12:00:00');
+  d.setDate(d.getDate()+8); // +8 to safely land in next week
+  CAL_WEEK=getWeekStrOf(d);renderCalendar();
+}
+function cvDateChanged(){
+  const dateVal=document.getElementById('cv-date').value;
+  if(!dateVal) return;
+  const d=new Date(dateVal+'T12:00:00');
+  const dayNames=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const dayFull={Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'};
+  const dayCode=dayNames[d.getDay()];
+  document.getElementById('cv-day').value=dayCode;
+  document.getElementById('cv-day-label').textContent='📅 '+d.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  // Also update CAL_WEEK to match selected date
+  const wk=getWeekStrOf(dateVal);
+  document.getElementById('cv-day-label').textContent+=' (Week: '+wk+')';
+}
+
+function openAddVideoModal(ch='',day=''){
+  const sel=document.getElementById('cv-channel');
+  sel.innerHTML=DB.channels.map(c=>`<option value="${c.name}" ${c.name===ch?'selected':''}>${c.name}</option>`).join('');
+  // Set default date to today or monday of current week
+  const today=new Date();
+  document.getElementById('cv-date').value=today.toISOString().split('T')[0];
+  cvDateChanged();
+  if(day) document.getElementById('cv-day').value=day;
+  document.getElementById('cv-title').value='';
+  document.getElementById('cv-status').value='Planned';
+  document.getElementById('cv-time').value='';
+  document.getElementById('cv-notes').value='';
+  document.getElementById('modal-cal-video').classList.add('open');
+}
+function quickAddVideo(ch,day){openAddVideoModal(ch,day);}
+function saveCalVideo(){
+  const ch=document.getElementById('cv-channel').value;
+  const title=document.getElementById('cv-title').value.trim();
+  if(!ch||!title){notify('Enter channel and title','err');return;}
+  const newVid={
+    id:'cv'+Date.now(),channel:ch,title,
+    day:document.getElementById('cv-day').value,
+    week:CAL_WEEK,
+    status:document.getElementById('cv-status').value,
+    time:document.getElementById('cv-time').value,
+    notes:document.getElementById('cv-notes').value.trim()
+  };
+  DB.calVideos.push(newVid);
+  saveDB();autoSaveVideo(newVid);closeModal('modal-cal-video');renderCalendar();notify('Added to calendar ✓');
+}
+function editCalVideo(id){
+  const v=DB.calVideos.find(x=>x.id===id);if(!v)return;
+  document.getElementById('ce-id').value=id;
+  document.getElementById('ce-title').value=v.title;
+  document.getElementById('ce-day').value=v.day;
+  document.getElementById('ce-status').value=v.status;
+  document.getElementById('ce-time').value=v.time||'';
+  document.getElementById('ce-notes').value=v.notes||'';
+  document.getElementById('modal-cal-edit').classList.add('open');
+}
+function updateCalVideo(){
+  const id=document.getElementById('ce-id').value;
+  const v=DB.calVideos.find(x=>x.id===id);if(!v)return;
+  v.title=document.getElementById('ce-title').value.trim();
+  v.day=document.getElementById('ce-day').value;
+  v.status=document.getElementById('ce-status').value;
+  v.time=document.getElementById('ce-time').value;
+  v.notes=document.getElementById('ce-notes').value.trim();
+  saveDB();autoSaveVideo(v);closeModal('modal-cal-edit');renderCalendar();notify('Updated ✓');
+}
+function deleteCalVideo(id){
+  DB.calVideos=DB.calVideos.filter(x=>x.id!==id);
+  saveDB();closeModal('modal-cal-edit');renderCalendar();notify('Deleted');
+}
+
+// ════════════════════════════════════════════
+// WEEKLY TASKS
+// ════════════════════════════════════════════
+function renderWeekly(){
+  const week=getCurrentWeekStr();
+  const tasks=DB.tasks.filter(t=>String(t.week)===String(week));
+  const el=document.getElementById('weekly-content');
+  el.innerHTML=`<div style="margin-bottom:1rem;font-size:.8rem;color:var(--text2)">Current week: ${weekToRange(week)}</div>`+
+    (!tasks.length?'<div class="empty"><div class="empty-icon">📌</div>No tasks assigned this week.</div>':
+    `<div class="card"><div class="tbl-wrap"><table>
+      <thead><tr><th>Member</th><th>Channel</th><th>Task</th><th>Target</th><th>Status</th><th></th></tr></thead>
+      <tbody>${tasks.map(t=>{
+        const m=DB.members.find(x=>x.id===t.memberId);
+        const chCol=t.channel?chColor(t.channel):'transparent';
+        return`<tr>
+          <td style="font-weight:500">${m?.name||'?'}</td>
+          <td>${t.channel?`<span class="badge" style="background:${chCol}18;color:${chCol};font-size:.63rem">${t.channel}</span>`:'—'}</td>
+          <td>${t.desc||t.title||"—"}<br>${t.notes?`<small style="color:var(--text3)">${t.notes}</small>`:''}</td>
+          <td>${t.target?t.target+' '+t.unit:'—'}</td>
+          <td>${(+t.done>=1)?'<span class="badge bgg">✓ Done</span>':'<span class="badge bga">Pending</span>'}</td>
+          <td><button class="btn b-danger b-sm" onclick="deleteTask('${t.id}')">Delete</button></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div></div>`);
+}
+function openTaskModal(){
+  document.getElementById('t-member').innerHTML=DB.members.filter(m=>!m.isManager).map(m=>`<option value="${m.id}">${m.name}</option>`).join('');
+  document.getElementById('t-channel').innerHTML='<option value="">No specific channel</option>'+DB.channels.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  document.getElementById('t-week').value=getCurrentWeekStr();
+  document.getElementById('modal-task').classList.add('open');
+}
+function saveTask(){
+  const memberId=document.getElementById('t-member').value;
+  const desc=document.getElementById('t-desc').value.trim();
+  if(!memberId||!desc){notify('Fill required fields','err');return;}
+  const newTask={
+    id:      't'+Date.now(),
+    memberId: memberId,
+    desc:    desc,
+    title:   desc,
+    channel: document.getElementById('t-channel').value,
+    week:    document.getElementById('t-week').value,
+    target:  parseInt(document.getElementById('t-target').value)||0,
+    unit:    document.getElementById('t-unit').value.trim(),
+    notes:   document.getElementById('t-notes').value.trim(),
+    done:    0
+  };
+  DB.tasks.push(newTask);
+  saveDB();
+  autoSaveTask(newTask).then(ok=>{
+    if(ok) notify('Task assigned & saved to Sheet ✓');
+    else notify('Task saved locally (Sheet sync failed)','err');
+  });
+  closeModal('modal-task');
+  renderWeekly();
+  ['t-desc','t-target','t-unit','t-notes'].forEach(id=>document.getElementById(id).value='');
+}
+function deleteTask(id){DB.tasks=DB.tasks.filter(t=>t.id!==id);saveDB();renderWeekly();notify('Deleted');}
+
+// ════════════════════════════════════════════
+// REPORTS — with Calendar Summary section
+// ════════════════════════════════════════════
+function renderReports(){
+  const week=document.getElementById('rep-week-sel')?.value||getCurrentWeekStr();
+  const el=document.getElementById('reports-content');
+  const wStart=weekStart(week);
+  // Exact Sunday end of week
+  const wEndD=new Date(wStart+'T12:00:00');wEndD.setDate(wEndD.getDate()+6);
+  const wEnd=wEndD.toISOString().split('T')[0];
+  const nonMgr=DB.members.filter(m=>!m.isManager);
+
+  // Team performance table — strict Mon-Sun
+  const perfRows=nonMgr.map(m=>{
+    const logs=DB.workLogs.filter(l=>String(l.memberId)===String(m.id)&&l.date>=wStart&&l.date<=wEnd);
+    const mins=logs.reduce((s,l)=>s+(+l.hrs||0)*60+(+l.mins||0),0);
+    const atts=DB.attendance.filter(a=>String(a.memberId)===String(m.id)&&a.date>=wStart&&a.date<=wEnd&&a.clockIn);
+    const hrs=atts.reduce((s,a)=>s+(parseFloat(a.hours)||0),0);
+    const incompDays=atts.filter(a=>!a.clockOut||a.clockOut==='Incomplete').length;
+    // Tasks for this week
+    const wTasks=DB.tasks.filter(t=>String(t.memberId)===String(m.id)&&String(t.week)===String(week));
+    const wDone=wTasks.filter(t=>(+t.done)>=1).length;
+    const wPending=wTasks.length-wDone;
+    const col=mColor(m);
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:.6rem"><div style="width:26px;height:26px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700">${m.name.charAt(0)}</div><div><div>${m.name}</div><div style="font-size:.65rem;color:var(--text3)">${m.role}</div></div></div></td>
+      <td>${logs.length}</td>
+      <td style="color:var(--accent);font-family:'DM Mono',monospace">${Math.floor(mins/60)}h ${mins%60}m</td>
+      <td>${hrs.toFixed(1)} hrs${incompDays>0?` <span class="badge bga" style="font-size:.6rem;padding:.1rem .35rem">⚠️ ${incompDays} inc.</span>`:''}</td>
+      <td>${atts.length} days${incompDays>0?` <span style="font-size:.65rem;color:var(--amber)">(${incompDays} incomplete)</span>`:''}</td>
+      <td style="text-align:center">${wTasks.length||'<span style="color:var(--text3)">—</span>'}</td>
+      <td style="text-align:center">${wDone?`<span class="badge bgg">${wDone}</span>`:'<span style="color:var(--text3)">0</span>'}</td>
+      <td style="text-align:center">${wPending?`<span class="badge bga">${wPending}</span>`:'<span style="color:var(--text3)">0</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  // Calendar report for this week
+  const calVids=DB.calVideos.filter(v=>v.week===week||(v.date&&v.date>=wStart&&v.date<=wEnd));
+  const calTotal=calVids.length;
+  const calUploaded=calVids.filter(v=>v.status==='Uploaded').length;
+  const calMissed=calVids.filter(v=>v.status==='Missed').length;
+  const calPending=calVids.filter(v=>['Planned','Ready'].includes(v.status)).length;
+  const calInProd=calVids.filter(v=>v.status==='In Production').length;
+  const uploadRate=calTotal?Math.round(calUploaded/calTotal*100):0;
+  const missRate=calTotal?Math.round(calMissed/calTotal*100):0;
+
+  // Per-channel calendar breakdown
+  const chCalRows=DB.channels.map(ch=>{
+    const chVids=calVids.filter(v=>v.channel===ch.name);
+    const total=chVids.length;
+    const up=chVids.filter(v=>v.status==='Uploaded').length;
+    const ms=chVids.filter(v=>v.status==='Missed').length;
+    const pd=chVids.filter(v=>['Planned','Ready'].includes(v.status)).length;
+    const ip=chVids.filter(v=>v.status==='In Production').length;
+    if(!total) return '';
+    const rate=Math.round(up/total*100);
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:.5rem"><span style="width:8px;height:8px;border-radius:50%;background:${ch.color};display:inline-block"></span>${ch.name}</div></td>
+      <td style="text-align:center">${total}</td>
+      <td style="text-align:center"><span class="badge bgp">${up}</span></td>
+      <td style="text-align:center"><span class="badge bgr">${ms}</span></td>
+      <td style="text-align:center"><span class="badge bga">${pd}</span></td>
+      <td style="text-align:center"><span class="badge bgb">${ip}</span></td>
+      <td>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <div class="pw" style="flex:1"><div class="pb pp" style="width:${rate}%"></div></div>
+          <span style="font-size:.72rem;color:var(--text2);min-width:30px">${rate}%</span>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML=`
+    <div style="margin-bottom:1rem;font-size:.8rem;color:var(--text2)">Week: ${weekToRange(week)}</div>
+
+    <!-- TEAM PERFORMANCE -->
+    <div class="card gap">
+      <div class="ct">Team Work Summary</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Member</th><th>Entries</th><th>Work Logged</th><th>Clock Hours</th><th>Att. Days</th><th>Tasks Assigned</th><th>✓ Done</th><th>⏳ Pending</th></tr></thead>
+        <tbody>${perfRows||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:1.5rem">No data for this week</td></tr>'}</tbody>
+      </table></div>
+    </div>
+
+    <!-- CALENDAR WEEKLY REPORT -->
+    <div class="card gap">
+      <div class="fb" style="margin-bottom:1.1rem">
+        <div class="ct" style="margin:0">📅 Content Calendar Report</div>
+        <span style="font-size:.75rem;color:var(--text3)">${weekToRange(week)}</span>
+      </div>
+
+      <!-- Summary stats -->
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-bottom:1.5rem">
+        <div style="background:var(--bg3);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid var(--border)">
+          <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">${calTotal}</div>
+          <div style="font-size:.62rem;color:var(--text3);margin-top:2px">Total Planned</div>
+        </div>
+        <div style="background:rgba(167,139,250,.08);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid rgba(167,139,250,.2)">
+          <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--purple)">${calUploaded}</div>
+          <div style="font-size:.62rem;color:var(--text3);margin-top:2px">Uploaded ✓</div>
+        </div>
+        <div style="background:rgba(239,68,68,.08);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid rgba(239,68,68,.2)">
+          <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--red)">${calMissed}</div>
+          <div style="font-size:.62rem;color:var(--text3);margin-top:2px">Missed ✗</div>
+        </div>
+        <div style="background:rgba(245,158,11,.08);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid rgba(245,158,11,.2)">
+          <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--amber)">${calPending}</div>
+          <div style="font-size:.62rem;color:var(--text3);margin-top:2px">Pending</div>
+        </div>
+        <div style="background:rgba(96,165,250,.08);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid rgba(96,165,250,.2)">
+          <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--blue)">${calInProd}</div>
+          <div style="font-size:.62rem;color:var(--text3);margin-top:2px">In Production</div>
+        </div>
+      </div>
+
+      ${calTotal?`
+      <!-- Upload rate bar -->
+      <div style="margin-bottom:1.5rem">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.5rem">
+          <span style="color:var(--text2)">Upload Rate</span>
+          <span style="font-weight:600;color:${uploadRate>=80?'var(--green)':uploadRate>=50?'var(--amber)':'var(--red)'}">${uploadRate}%</span>
+        </div>
+        <div class="pw" style="height:8px">
+          <div class="pb" style="width:${uploadRate}%;background:${uploadRate>=80?'var(--green)':uploadRate>=50?'var(--amber)':'var(--red)'}"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.68rem;color:var(--text3);margin-top:.35rem">
+          <span>Miss Rate: ${missRate}%</span>
+          <span>${calUploaded} of ${calTotal} uploaded</span>
+        </div>
+      </div>
+
+      <!-- Per-channel breakdown -->
+      ${chCalRows?`<div class="ct">Per Channel Breakdown</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Channel</th><th style="text-align:center">Total</th><th style="text-align:center">Uploaded</th><th style="text-align:center">Missed</th><th style="text-align:center">Pending</th><th style="text-align:center">In Prod</th><th>Upload Rate</th></tr></thead>
+        <tbody>${chCalRows}</tbody>
+      </table></div>`:''}
+
+      <!-- Video list -->
+      ${calVids.length?`<div class="ct" style="margin-top:1.5rem">All Videos This Week</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Title</th><th>Channel</th><th>Day</th><th>Status</th><th>Time</th></tr></thead>
+        <tbody>${calVids.sort((a,b)=>DAYS.indexOf(a.day)-DAYS.indexOf(b.day)).map(v=>{
+          const sc=STATUS_COLORS[v.status]||'#55556a';
+          const chCol=chColor(v.channel);
+          return`<tr>
+            <td style="font-weight:500">${v.title}</td>
+            <td><span class="badge" style="background:${chCol}18;color:${chCol}">${v.channel}</span></td>
+            <td>${DAY_FULL[v.day]||v.day}</td>
+            <td><span class="badge" style="background:${sc}18;color:${sc}">${v.status}</span></td>
+            <td style="color:var(--text3)">${v.time?(String(v.time).includes('T')?String(v.time).split('T')[1].slice(0,5):String(v.time).slice(0,5)):'—'}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>`:''}
+      `:'<div class="empty" style="padding:1.5rem"><div class="empty-icon">📅</div>No videos planned for this week in the calendar.</div>'}
+    </div>`;
+}
+
+function renderMonthlyReport(){
+  const el=document.getElementById('reports-content');
+  const nonMgr=DB.members.filter(m=>!m.isManager);
+
+  // Get selected month
+  const moSel=document.getElementById('rep-month-sel');
+  const now=new Date();
+  const defVal=now.getFullYear()+'-'+(now.getMonth()+1<10?'0'+(now.getMonth()+1):now.getMonth()+1);
+  const selVal=moSel?.value||defVal;
+  const [selYr,selMo]=selVal.split('-').map(Number);
+  const pad=n=>n<10?'0'+n:String(n);
+  const monthStart=selYr+'-'+pad(selMo)+'-01';
+  const lastDay=new Date(selYr,selMo,0).getDate();
+  const monthEnd=selYr+'-'+pad(selMo)+'-'+pad(lastDay);
+  const monthLabel=new Date(selYr,selMo-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});
+
+  const memberRows=nonMgr.map(m=>{
+    const logs=DB.workLogs.filter(l=>String(l.memberId)===String(m.id)&&l.date>=monthStart&&l.date<=monthEnd);
+    const mins=logs.reduce((s,l)=>s+(+l.hrs||0)*60+(+l.mins||0),0);
+    const atts=DB.attendance.filter(a=>String(a.memberId)===String(m.id)&&a.date>=monthStart&&a.date<=monthEnd&&a.clockIn);
+    const hrs=atts.reduce((s,a)=>s+(parseFloat(a.hours)||0),0);
+    const incompDays=atts.filter(a=>!a.clockOut||a.clockOut==='Incomplete').length;
+    // All tasks in weeks overlapping this month
+    const mTasks=DB.tasks.filter(t=>{
+      if(String(t.memberId)!==String(m.id)) return false;
+      const ws=weekStart(t.week||'');
+      return ws&&ws>=monthStart&&ws<=monthEnd;
+    });
+    const mDone=mTasks.filter(t=>(+t.done)>=1).length;
+    const mPending=mTasks.length-mDone;
+    const col=mColor(m);
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:.6rem"><div style="width:26px;height:26px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700">${m.name.charAt(0)}</div><div><div>${m.name}</div><div style="font-size:.65rem;color:var(--text3)">${m.role}</div></div></div></td>
+      <td>${logs.length}</td>
+      <td style="color:var(--accent);font-family:'DM Mono',monospace">${Math.floor(mins/60)}h ${mins%60}m</td>
+      <td>${hrs.toFixed(1)} hrs${incompDays>0?` <span class="badge bga" style="font-size:.6rem;padding:.1rem .35rem">⚠️ ${incompDays} inc.</span>`:''}</td>
+      <td>${atts.length} days${incompDays>0?` <span style="font-size:.65rem;color:var(--amber)">(${incompDays} incomplete)</span>`:''}</td>
+      <td style="text-align:center">${mTasks.length||'<span style="color:var(--text3)">—</span>'}</td>
+      <td style="text-align:center">${mDone?`<span class="badge bgg">${mDone}</span>`:'<span style="color:var(--text3)">0</span>'}</td>
+      <td style="text-align:center">${mPending?`<span class="badge bga">${mPending}</span>`:'<span style="color:var(--text3)">0</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  // Monthly calendar report
+  const calVids=DB.calVideos.filter(v=>{
+    const d=v.date||'';
+    const ws=weekStart(v.week||'');
+    return (d&&d>=monthStart&&d<=monthEnd)||(ws&&ws>=monthStart&&ws<=monthEnd);
+  });
+  const calTotal=calVids.length;
+  const calUp=calVids.filter(v=>v.status==='Uploaded').length;
+  const calMs=calVids.filter(v=>v.status==='Missed').length;
+  const calPd=calVids.filter(v=>['Planned','Ready'].includes(v.status)).length;
+  const calIp=calVids.filter(v=>v.status==='In Production').length;
+  const upRate=calTotal?Math.round(calUp/calTotal*100):0;
+  const chCalRows=DB.channels.map(ch=>{
+    const cv=calVids.filter(v=>v.channel===ch.name);
+    if(!cv.length)return'';
+    const up=cv.filter(v=>v.status==='Uploaded').length;
+    const ms=cv.filter(v=>v.status==='Missed').length;
+    const pd=cv.filter(v=>['Planned','Ready'].includes(v.status)).length;
+    const ip=cv.filter(v=>v.status==='In Production').length;
+    const r=Math.round(up/cv.length*100);
+    return`<tr>
+      <td><div style="display:flex;align-items:center;gap:.5rem"><span style="width:8px;height:8px;border-radius:50%;background:${ch.color};display:inline-block"></span>${ch.name}</div></td>
+      <td style="text-align:center">${cv.length}</td>
+      <td style="text-align:center"><span class="badge bgp">${up}</span></td>
+      <td style="text-align:center"><span class="badge bgr">${ms}</span></td>
+      <td style="text-align:center"><span class="badge bga">${pd}</span></td>
+      <td style="text-align:center"><span class="badge bgb">${ip}</span></td>
+      <td><div style="display:flex;align-items:center;gap:.5rem"><div class="pw" style="flex:1"><div class="pb pp" style="width:${r}%"></div></div><span style="font-size:.72rem;color:var(--text2)">${r}%</span></div></td>
+    </tr>`;
+  }).join('');
+
+  el.innerHTML=`
+    <div style="font-size:.82rem;color:var(--text2);margin-bottom:1rem">📅 Full Month: <b style="color:var(--text)">${monthLabel}</b> <span style="color:var(--text3)">(${monthStart} → ${monthEnd})</span></div>
+    <div class="card gap">
+      <div class="ct">Monthly Team Summary</div>
+      <div class="tbl-wrap"><table>
+        <thead><tr><th>Member</th><th>Entries</th><th>Work Logged</th><th>Clock Hours</th><th>Days Active</th><th>Tasks Assigned</th><th>✓ Done</th><th>⏳ Pending</th></tr></thead>
+        <tbody>${memberRows||'<tr><td colspan="8" style="text-align:center;color:var(--text3);padding:1.5rem">No data for this month</td></tr>'}</tbody>
+      </table></div>
+    </div>
+
+    ${calTotal?`<div class="card gap" style="margin-top:1.5rem">
+      <div class="fb" style="margin-bottom:1.1rem"><div class="ct" style="margin:0">📅 Monthly Calendar Report</div><span style="font-size:.75rem;color:var(--text3)">${monthLabel}</span></div>
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:.6rem;margin-bottom:1.5rem">
+        <div style="background:var(--bg3);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid var(--border)"><div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800">${calTotal}</div><div style="font-size:.62rem;color:var(--text3);margin-top:2px">Total Planned</div></div>
+        <div style="background:rgba(167,139,250,.08);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid rgba(167,139,250,.2)"><div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--purple)">${calUp}</div><div style="font-size:.62rem;color:var(--text3);margin-top:2px">Uploaded ✓</div></div>
+        <div style="background:rgba(239,68,68,.08);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid rgba(239,68,68,.2)"><div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--red)">${calMs}</div><div style="font-size:.62rem;color:var(--text3);margin-top:2px">Missed ✗</div></div>
+        <div style="background:rgba(245,158,11,.08);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid rgba(245,158,11,.2)"><div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--amber)">${calPd}</div><div style="font-size:.62rem;color:var(--text3);margin-top:2px">Pending</div></div>
+        <div style="background:rgba(96,165,250,.08);border-radius:var(--r-sm);padding:.75rem;text-align:center;border:1px solid rgba(96,165,250,.2)"><div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:var(--blue)">${calIp}</div><div style="font-size:.62rem;color:var(--text3);margin-top:2px">In Production</div></div>
+      </div>
+      <div style="margin-bottom:1rem">
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:.4rem"><span style="color:var(--text2)">Upload Rate</span><span style="font-weight:600;color:${upRate>=80?'var(--green)':upRate>=50?'var(--amber)':'var(--red)'}">${upRate}%</span></div>
+        <div class="pw" style="height:8px"><div class="pb" style="width:${upRate}%;background:${upRate>=80?'var(--green)':upRate>=50?'var(--amber)':'var(--red)'}"></div></div>
+        <div style="font-size:.68rem;color:var(--text3);margin-top:.3rem">${calUp} of ${calTotal} uploaded</div>
+      </div>
+      ${chCalRows?`<div class="ct">Per Channel Breakdown</div><div class="tbl-wrap"><table><thead><tr><th>Channel</th><th style="text-align:center">Total</th><th style="text-align:center">Uploaded</th><th style="text-align:center">Missed</th><th style="text-align:center">Pending</th><th style="text-align:center">In Prod</th><th>Rate</th></tr></thead><tbody>${chCalRows}</tbody></table></div>`:''}
+    </div>`:'<div class="card" style="margin-top:1.5rem"><div class="ct">Monthly Calendar Report</div><div class="empty">No calendar videos found for this month.</div></div>'}`;
+}
+
+// ════════════════════════════════════════════
+// SETTINGS
+// ════════════════════════════════════════════
+function renderSettings(){
+  document.getElementById('settings-members').innerHTML=DB.members.map(m=>{
+    const col=mColor(m);
+    return`<div class="member-row">
+      <div style="width:32px;height:32px;border-radius:50%;background:${col}22;color:${col};display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;flex-shrink:0">${m.name.charAt(0)}</div>
+      <div style="flex:1"><div style="font-size:.875rem;font-weight:500">${m.name} <span style="color:var(--text3);font-weight:400;font-family:'DM Mono',monospace">(${m.id})</span></div><div style="font-size:.7rem;color:var(--text3)">${m.role}${m.isManager?' · Manager':''}</div></div>
+      <button class="btn b-ghost b-sm" onclick="openPasswdModal('${m.id}')">🔑</button>
+      ${!m.isManager?`<button class="btn b-danger b-sm" onclick="deleteMember('${m.id}')">Delete</button>`:''}
+    </div>`;
+  }).join('');
+  document.getElementById('settings-channels').innerHTML=DB.channels.map(c=>`
+    <div class="member-row">
+      <div style="width:10px;height:10px;border-radius:50%;background:${c.color};flex-shrink:0"></div>
+      <div style="flex:1;font-size:.875rem;font-weight:500">${c.name}</div>
+      <button class="btn b-danger b-sm" onclick="deleteChannel('${c.name}')">Delete</button>
+    </div>`).join('');
+  document.getElementById('settings-cats').innerHTML=DB.categories.map(c=>`
+    <div class="member-row">
+      <span style="font-size:.9rem">🏷️</span>
+      <div style="flex:1;font-size:.875rem">${c}</div>
+      <button class="btn b-danger b-sm" onclick="deleteCat('${c}')">Delete</button>
+    </div>`).join('');
+}
+function openMemberModal(){document.getElementById('modal-member').classList.add('open');}
+function openChannelModal(){document.getElementById('modal-channel').classList.add('open');}
+function openCatModal(){document.getElementById('modal-cat').classList.add('open');}
+function saveMember(){
+  const name=document.getElementById('m-name').value.trim();
+  const role=document.getElementById('m-role').value.trim();
+  const isManager=document.getElementById('m-mgr').value==='1';
+  const password=document.getElementById('m-pass').value;
+  if(!name||!role||!password){notify('Fill all fields','err');return;}
+  const newMember={id:'m'+Date.now(),name,role,isManager,password,color:COLORS[DB.members.length%COLORS.length]};
+  DB.members.push(newMember);
+  saveDB();
+  autoSaveMember(newMember).then(()=>{
+    notify(name+' added & saved to Sheet ✓ — they can now login from any device');
+  });
+  closeModal('modal-member');renderSettings();
+  ['m-name','m-role','m-pass'].forEach(id=>document.getElementById(id).value='');
+  populateLoginDrop();
+}
+function deleteMember(id){
+  if(!confirm('Delete this member and all their data?'))return;
+  DB.members=DB.members.filter(m=>m.id!==id);
+  DB.workLogs=DB.workLogs.filter(l=>l.memberId!==id);
+  DB.attendance=DB.attendance.filter(a=>a.memberId!==id);
+  DB.tasks=DB.tasks.filter(t=>t.memberId!==id);
+  saveDB();
+  gsPost('deleteMember',{id:String(id)}).then(ok=>{
+    notify(ok?'Member deleted from app & Sheet ✓':'Member deleted locally (Sheet sync pending)');
+  });
+  renderSettings();populateLoginDrop();
+}
+function saveChannel(){
+  const name=document.getElementById('ch-name').value.trim();
+  const color=document.getElementById('ch-color').value;
+  if(!name){notify('Enter channel name','err');return;}
+  if(DB.channels.find(c=>c.name===name)){notify('Channel already exists','err');return;}
+  const newCh={name,color};
+  DB.channels.push(newCh);saveDB();autoSaveChannel(newCh);closeModal('modal-channel');
+  document.getElementById('ch-name').value='';
+  renderSettings();populateWLDropdowns();notify(name+' added ✓');
+}
+function deleteChannel(name){
+  DB.channels=DB.channels.filter(c=>c.name!==name);
+  saveDB();
+  gsPost('deleteChannel',{name:name});
+  renderSettings();populateWLDropdowns();notify('Channel deleted');
+}
+function saveCat(){
+  const name=document.getElementById('cat-name').value.trim();
+  if(!name){notify('Enter category name','err');return;}
+  if(DB.categories.includes(name)){notify('Category already exists','err');return;}
+  DB.categories.push(name);
+  saveDB();
+  gsPost('addCategory',{name:name});
+  closeModal('modal-cat');
+  document.getElementById('cat-name').value='';
+  renderSettings();populateWLDropdowns();notify(name+' added ✓');
+}
+function deleteCat(name){
+  DB.categories=DB.categories.filter(c=>c!==name);
+  saveDB();
+  gsPost('deleteCategory',{name:name});
+  renderSettings();populateWLDropdowns();notify('Category deleted');
+}
+function openPasswdModal(id){
+  document.getElementById('passwd-id').value=id;
+  document.getElementById('passwd-new').value='';
+  document.getElementById('modal-passwd').classList.add('open');
+}
+function savePassword(){
+  const id=document.getElementById('passwd-id').value;
+  const p=document.getElementById('passwd-new').value;
+  if(!p||p.length<4){notify('Min 4 characters','err');return;}
+  const m=DB.members.find(x=>x.id===id);
+  if(m){
+    m.password=p;
+    saveDB();
+    autoSaveMember(m).then(()=>{
+      notify('Password updated & synced to Sheet ✓ — member can now login from any device');
+    });
+  }
+  closeModal('modal-passwd');closeModal('modal-detail');
+}
+
+// ════════════════════════════════════════════
+// MODALS & NOTIFY
+// ════════════════════════════════════════════
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+document.querySelectorAll('.modal-bg').forEach(bg=>bg.addEventListener('click',e=>{if(e.target===bg)bg.classList.remove('open');}));
+function notify(msg,type='ok'){
+  const n=document.getElementById('notif');
+  n.textContent=(type==='ok'?'✓ ':'✕ ')+msg;
+  n.className='notif notif-'+type+' show';
+  clearTimeout(n._t);n._t=setTimeout(()=>n.classList.remove('show'),3000);
+}
+
+// ════════════════════════════════════════════
+// DATE HELPERS
+// ════════════════════════════════════════════
+function todayStr(){
+  const d=new Date();
+  const year=d.getFullYear();
+  const month=String(d.getMonth()+1).padStart(2,'0');
+  const day=String(d.getDate()).padStart(2,'0');
+  return year+'-'+month+'-'+day;
+}
+function formatDate(d){return new Date(d+'T12:00:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric',year:'numeric'});}
+function getCurrentWeekStr(){
+  const d=new Date();d.setHours(0,0,0,0);
+  d.setDate(d.getDate()+3-(d.getDay()+6)%7);
+  const w1=new Date(d.getFullYear(),0,4);
+  const wn=1+Math.round(((d-w1)/86400000-3+(w1.getDay()+6)%7)/7);
+  return d.getFullYear()+'-W'+String(wn).padStart(2,'0');
+}
+function getWeekStrOf(d){
+  const dd=new Date(d);dd.setHours(0,0,0,0);
+  dd.setDate(dd.getDate()+3-(dd.getDay()+6)%7);
+  const w1=new Date(dd.getFullYear(),0,4);
+  const wn=1+Math.round(((dd-w1)/86400000-3+(w1.getDay()+6)%7)/7);
+  return dd.getFullYear()+'-W'+String(wn).padStart(2,'0');
+}
+function weekStart(wStr){
+  const[yr,wn]=wStr.split('-W').map(Number);
+  const s=new Date(yr,0,1+(wn-1)*7);
+  const dow=s.getDay();s.setDate(s.getDate()-(dow<=4?dow-1:dow-8));
+  return s.toISOString().split('T')[0];
+}
+function weekToRange(wStr){
+  const mon=new Date(weekStart(wStr)+'T12:00:00');
+  const sun=new Date(mon);sun.setDate(mon.getDate()+6);
+  const fmt=d=>d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+  return fmt(mon)+' – '+fmt(sun);
+}
+function populateWeekSel(selId){
+  const sel=document.getElementById(selId);if(!sel)return;
+  const cur=getCurrentWeekStr();const weeks=[];
+  for(let i=-12;i<=1;i++){const d=new Date();d.setDate(d.getDate()+i*7);const w=getWeekStrOf(d);if(!weeks.includes(w))weeks.push(w);}
+  sel.innerHTML=weeks.reverse().map(w=>`<option value="${w}" ${w===cur?'selected':''}>${weekToRange(w)}</option>`).join('');
+  sel.value=cur;
+}
+function populateMonthSel(){
+  const sel=document.getElementById('rep-month-sel');if(!sel)return;
+  const now=new Date();const months=[];
+  for(let i=0;i<12;i++){
+    const d=new Date(now.getFullYear(),now.getMonth()-i,1);
+    const yr=d.getFullYear(),mo=d.getMonth()+1;
+    const val=yr+'-'+(mo<10?'0'+mo:mo);
+    const label=d.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+    months.push({val,label});
+  }
+  const cur=now.getFullYear()+'-'+(now.getMonth()+1<10?'0'+(now.getMonth()+1):now.getMonth()+1);
+  sel.innerHTML=months.map(m=>`<option value="${m.val}" ${m.val===cur?'selected':''}>${m.label}</option>`).join('');
+}
+let _repView='weekly';
+function switchRepView(view){
+  _repView=view;
+  const wSel=document.getElementById('rep-week-sel');
+  const mSel=document.getElementById('rep-month-sel');
+  const bW=document.getElementById('rep-btn-weekly');
+  const bM=document.getElementById('rep-btn-monthly');
+  if(view==='weekly'){
+    if(wSel)wSel.style.display='';
+    if(mSel)mSel.style.display='none';
+    if(bW){bW.className='btn b-accent';bW.style.fontSize='.78rem';bW.style.padding='.45rem .85rem';}
+    if(bM){bM.className='btn b-ghost';bM.style.fontSize='.78rem';bM.style.padding='.45rem .85rem';}
+    renderReports();
+  } else {
+    if(wSel)wSel.style.display='none';
+    if(mSel)mSel.style.display='';
+    if(bW){bW.className='btn b-ghost';bW.style.fontSize='.78rem';bW.style.padding='.45rem .85rem';}
+    if(bM){bM.className='btn b-accent';bM.style.fontSize='.78rem';bM.style.padding='.45rem .85rem';}
+    populateMonthSel();
+    renderMonthlyReport();
+  }
+}
+
+
+// ════════════════════════════════════════════
+// GOOGLE SHEETS SYNC
+// ════════════════════════════════════════════
+const GS_KEY = 'ytm_gs_url';
+
+const HARDCODED_GS_URL = 'https://script.google.com/macros/s/AKfycbzkWQpzCLMH0YBGGFbjcm2nGTRIUow7XgXiakv5cwEo26VCFqR3hAm5TQdI792LP0cc/exec';
+function getGSUrl(){ return HARDCODED_GS_URL; }
+
+function saveGSUrl(){
+  const url = document.getElementById('gs-url-input').value.trim();
+  if(!url || !url.includes('script.google.com')){
+    notify('Please paste a valid Apps Script URL','err'); return;
+  }
+  localStorage.setItem(GS_KEY, url);
+  updateGSUI(url);
+  notify('Google Sheets connected ✓');
+  testGSConnection();
+}
+
+function clearGSUrl(){
+  localStorage.removeItem(GS_KEY);
+  document.getElementById('gs-url-input').value='';
+  updateGSUI('');
+  notify('Disconnected from Google Sheets');
+}
+
+function updateGSUI(url){
+  const badge   = document.getElementById('gs-status-badge');
+  const saved   = document.getElementById('gs-url-saved');
+  const syncRow = document.getElementById('gs-sync-row');
+  const testBtn = document.getElementById('gs-test-btn');
+  const display = document.getElementById('gs-url-display');
+  if(url){
+    badge.className='badge bgg'; badge.textContent='Connected';
+    saved.style.display='block';
+    syncRow.style.display='block';
+    testBtn.style.display='flex';
+    const short = url.length>60 ? url.slice(0,30)+'...'+url.slice(-20) : url;
+    display.textContent = short;
+    document.getElementById('gs-url-input').value = url;
+  } else {
+    badge.className='badge bgy'; badge.textContent='Not Connected';
+    saved.style.display='none';
+    syncRow.style.display='none';
+    testBtn.style.display='none';
+  }
+}
+
+function gsLog(msg){
+  const el = document.getElementById('gs-sync-log');
+  el.style.display='block';
+  el.textContent += '['+new Date().toLocaleTimeString()+'] '+msg+'\n';
+  el.scrollTop = el.scrollHeight;
+}
+
+// ─────────────────────────────────────────────
+// CORE POST FUNCTION — Fixed for Google Apps Script
+// Uses text/plain which bypasses CORS preflight
+// ─────────────────────────────────────────────
+async function gsPost(action, payload){
+  const url = getGSUrl();
+  if(!url) return false;
+  try {
+    const body = JSON.stringify({ action, ...payload });
+    const r = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: body
+    });
+    const text = await r.text();
+    let d;
+    try { d = JSON.parse(text); } catch(e){ console.warn('gsPost bad JSON:', text); return false; }
+    if(d.error){ console.warn('gsPost server error:', action, d.error); return false; }
+    return d.success ? true : false;
+  } catch(e) {
+    console.warn('gsPost failed:', action, e.message);
+    return false;
+  }
+}
+
+// ─────────────────────────────────────────────
+// AUTO-SAVE: Called instantly when any employee
+// does clock-in/out or adds a work log
+// ─────────────────────────────────────────────
+async function autoSaveAttendance(rec){
+  if(!getGSUrl()) return;
+  const mem = DB.members.find(x=>String(x.id)===String(rec.memberId));
+  await gsPost('syncAttendance', {
+    memberId:   rec.memberId,
+    date:       rec.date,
+    clockIn:    rec.clockIn  || '',
+    clockOut:   rec.clockOut || '',
+    hours:      rec.hours    || 0,
+    memberName: mem ? mem.name : ''
+  });
+}
+
+async function autoSaveWorkLog(log){
+  if(!getGSUrl()) return;
+  await gsPost('syncWorkLog', {
+    id:       log.id,
+    memberId: log.memberId,
+    date:     log.date,
+    channel:  log.channel || '',
+    type:     log.type    || '',
+    task:     log.task    || '',
+    hrs:      log.hrs     || 0,
+    mins:     log.mins    || 0,
+    proof:    log.proof   || '',
+    notes:    log.notes   || ''
+  });
+}
+
+async function autoSaveMember(m){
+  if(!getGSUrl()) return;
+  await gsPost('addMember', {
+    id:        m.id,
+    name:      m.name,
+    role:      m.role,
+    isManager: m.isManager,
+    color:     m.color,
+    password:  m.password||''
+  });
+}
+
+async function autoSaveChannel(c){
+  if(!getGSUrl()) return;
+  await gsPost('addChannel', { name: c.name, color: c.color });
+}
+
+async function autoSaveTask(t){
+  if(!getGSUrl()) return false;
+  const result = await gsPost('addTask', {
+    id:       String(t.id),
+    memberId: String(t.memberId),
+    title:    String(t.desc || t.title || ''),
+    channel:  String(t.channel || ''),
+    type:     String(t.type || ''),
+    target:   +t.target || 0,
+    done:     +t.done >= 1 ? 1 : 0,
+    week:     String(t.week || ''),
+    note:     String(t.notes || t.note || '')
+  });
+  return result;
+}
+
+async function autoSaveVideo(v){
+  if(!getGSUrl()) return;
+  await gsPost('addVideo', {
+    id:      v.id,
+    title:   v.title   || '',
+    channel: v.channel || '',
+    status:  v.status  || '',
+    day:     v.day     || '',
+    week:    v.week    || '',
+    time:    v.time    || '',
+    notes:   v.notes   || ''
+  });
+}
+
+// ─────────────────────────────────────────────
+// TEST CONNECTION
+// ─────────────────────────────────────────────
+// Sync all member passwords to Sheet — fixes cross-device login
+async function syncAllPasswords(){
+  notify('Syncing all members & passwords to Sheet...');
+  let count=0;
+  for(const m of DB.members){
+    const pw = m.password || m.sheetPassword || '1234';
+    const ok=await gsPost('addMember',{
+      id:      String(m.id),
+      name:    String(m.name),
+      role:    String(m.role),
+      isManager: m.isManager||false,
+      color:   String(m.color||'#60a5fa'),
+      password: String(pw)
+    });
+    if(ok) count++;
+  }
+  notify(count+' members synced with passwords ✓ All can login from any device now!');
+}
+
+async function testGSConnection(){
+  const url = getGSUrl(); if(!url){ notify('No URL saved','err'); return; }
+  gsLog('Testing connection...');
+  try {
+    const r = await fetch(url+'?action=getAll');
+    const d = await r.json();
+    if(d.error){ gsLog('ERROR: '+d.error); notify('Connection error: '+d.error,'err'); }
+    else { gsLog('Connection OK ✓ — Sheet has '+((d.members||[]).length)+' members, '+((d.attendance||[]).length)+' attendance rows'); notify('Connection OK ✓'); }
+  } catch(e){ gsLog('FAILED: '+e.message); notify('Cannot reach script URL','err'); }
+}
+
+// ─────────────────────────────────────────────
+// MANUAL BULK SYNC (Manager button)
+// ─────────────────────────────────────────────
+async function syncAllToSheets(){
+  const url = getGSUrl(); if(!url){ notify('Connect Google Sheets first','err'); return; }
+  const btn = document.getElementById('gs-sync-btn');
+  btn.textContent='Syncing...'; btn.disabled=true;
+  gsLog('Starting full sync...');
+  let okCount=0, fail=0;
+
+  async function post(action, payload){
+    const ok = await gsPost(action, payload);
+    if(ok) okCount++; else { fail++; gsLog('FAIL '+action); }
+  }
+
+  // Members
+  for(const m of DB.members){
+    await post('addMember',{id:m.id,name:m.name,role:m.role,isManager:m.isManager,color:m.color,password:m.password||''});
+  }
+  gsLog('Members: '+DB.members.length+' rows');
+
+  // Channels
+  for(const c of DB.channels){
+    await post('addChannel',{name:c.name,color:c.color});
+  }
+  gsLog('Channels: '+DB.channels.length+' rows');
+
+  // Categories
+  for(const c of DB.categories){
+    await post('addCategory',{name:c});
+  }
+  gsLog('Categories: '+DB.categories.length+' rows');
+
+  // Attendance
+  for(const a of DB.attendance){
+    await post('syncAttendance',{memberId:a.memberId,date:a.date,clockIn:a.clockIn||'',clockOut:a.clockOut||'',hours:a.hours||0,memberName:(DB.members.find(x=>String(x.id)===String(a.memberId))||{}).name||''});
+  }
+  gsLog('Attendance: '+DB.attendance.length+' rows');
+
+  // Work logs
+  for(const l of DB.workLogs){
+    await post('syncWorkLog',{id:l.id,memberId:l.memberId,date:l.date,channel:l.channel||'',type:l.type||'',task:l.task||'',hrs:l.hrs||0,mins:l.mins||0,proof:l.proof||'',notes:l.notes||''});
+  }
+  gsLog('Work logs: '+DB.workLogs.length+' rows');
+
+  // Tasks
+  for(const t of DB.tasks){
+    await post('addTask',{id:String(t.id),memberId:String(t.memberId),title:String(t.desc||t.title||''),channel:String(t.channel||''),type:String(t.type||''),target:+t.target||0,done:(+t.done>=1?1:0),week:String(t.week||''),note:String(t.notes||t.note||'')});
+  }
+  gsLog('Tasks: '+DB.tasks.length+' rows');
+
+  // Calendar videos
+  for(const v of DB.calVideos){
+    await post('addVideo',{id:v.id,title:v.title||'',channel:v.channel||'',status:v.status||'',day:v.day||'',week:v.week||'',time:v.time||'',notes:v.notes||''});
+  }
+  gsLog('Videos: '+DB.calVideos.length+' rows');
+
+  // Settings (IP restriction etc.) — pehli dafa migrate karne ke liye
+  if(DB.settings){
+    for(const key in DB.settings){
+      await post('saveSetting',{key,value:DB.settings[key]});
+    }
+    gsLog('Settings: '+Object.keys(DB.settings).length+' rows');
+  }
+
+  const ts = new Date().toLocaleString();
+  localStorage.setItem('ytm_last_sync', ts);
+  document.getElementById('gs-last-sync').textContent = 'Last: '+ts;
+  gsLog('Sync complete — '+okCount+' OK, '+fail+' failed');
+  btn.textContent='⬆ Sync to Sheets'; btn.disabled=false;
+  notify('Sync complete! '+okCount+' records sent ✓');
+}
+
+async function loadFromSheets(){
+  const url = getGSUrl(); if(!url){ notify('Connect Google Sheets first','err'); return; }
+  const btn = document.getElementById('gs-load-btn');
+  btn.textContent='Loading...'; btn.disabled=true;
+  gsLog('Loading ALL data from Sheets...');
+  try {
+    const r = await fetch(url+'?action=getAll');
+    const d = await r.json();
+    if(d.error){ gsLog('ERROR: '+d.error); notify(d.error,'err'); btn.textContent='⬇ Load from Sheets'; btn.disabled=false; return; }
+    // Use full loadAllFromSheet logic
+    await loadAllFromSheet();
+    gsLog('Loaded: members='+((d.members||[]).length)+' attendance='+((d.attendance||[]).length)+' worklogs='+((d.workLogs||[]).length)+' tasks='+((d.tasks||[]).length)+' videos='+((d.calVideos||[]).length));
+    notify('All data loaded from Sheets ✓');
+    // Re-render current page
+    renderDashboard();renderSettings();populateLoginDrop();populateWLDropdowns();
+  } catch(e){ gsLog('FAILED: '+e.message); notify('Load failed','err'); }
+  btn.textContent='⬇ Load from Sheets'; btn.disabled=false;
+}
+
+function initGSUI(){
+  const url = getGSUrl();
+  if(url) updateGSUI(url);
+  const ls = localStorage.getItem('ytm_last_sync');
+  if(ls) { const el=document.getElementById('gs-last-sync'); if(el) el.textContent='Last: '+ls; }
+}
+
+// ════════════════════════════════════════════
+// INIT — Load members from Sheet on page open
+// so login dropdown is always up to date
+// ════════════════════════════════════════════
+async function initApp(){
+  showLoading('Connecting to Google Sheets...');
+  try {
+    const r = await fetch(HARDCODED_GS_URL+'?action=getAll');
+    const d = await r.json();
+    if(!d.error && d.members && d.members.length){
+      const sheetIds = d.members.map(m=>String(m.id));
+
+      // Step 1: Remove locally stored members not in Sheet anymore
+      // (always keep the manager account)
+      DB.members = DB.members.filter(m=>{
+        if(m.isManager || m.id==='m0') return true;
+        return sheetIds.includes(String(m.id));
+      });
+
+      // Step 2: Add/update from Sheet
+      d.members.forEach(sm=>{
+        const local=DB.members.find(x=>String(x.id)===String(sm.id));
+        if(!local){
+          DB.members.push({
+            ...sm,
+            password: sm.password||'1234'
+          });
+        } else {
+          local.name     = sm.name  || local.name;
+          local.role     = sm.role  || local.role;
+          local.color    = sm.color || local.color;
+          local.isManager= sm.isManager||local.isManager;
+          if(sm.password) local.password = sm.password;
+        }
+      });
+      saveDB();
+    }
+    if(!d.error && d.settings) applySettingsFromSheet(d.settings);
+  } catch(e){ console.warn('Init load failed (offline):', e.message); }
+  hideLoading();
+  populateLoginDrop();
+  initGSUI();
+}
+initApp();
+</script>
+</body>
+</html>
